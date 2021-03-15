@@ -3,7 +3,7 @@ $is_auth = rand(0, 1);
 $user_name = 'Игорь'; // укажите здесь ваше имя
 ?>
 <?php
-$new_array = [
+$posts = [
   ['Цитата',
   'post-quote',
   'Мы в жизни любим только раз, а после ищем лишь похожих',
@@ -230,7 +230,7 @@ $new_array = [
             </div>
         </div>
         <div class="popular__posts">
-          <?php foreach ($new_array as list ($head, $type, $contain, $userName, $avatar)): ?>
+          <?php foreach ($posts as list ($head, $type, $contain, $userName, $avatar)): ?>
             <article class="popular__post post <?= $type ?>">
                 <header class="post__header">
                     <h2><?= $head ?></h2>
