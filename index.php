@@ -30,25 +30,25 @@ $posts = [
   'Владик',
   'userpic.jpg']
 ];
-function text($t,$count){
-  $i=0;
-  $line="";
-  if (strlen($t)>$count){
-    $pieces = explode(" ",$t);
+function cropText ($t, $count) {
+  $i = 0;
+  $line = "";
+  if (strlen ($t) > $count) {
+    $pieces = explode (" ", $t);
     foreach ($pieces as $piece) {
-      $long = strlen($piece);
-      $i=$i+$long+'1';
-      if ($i<$count){
-        $line.="$piece ";
+      $long = strlen ($piece);
+      $i = $i + $long+'1';
+      if ($i < $count) {
+        $line .= "$piece ";
       }
       else {
-        echo $line."..."."<a class='post-text__more-link' href='#'>Читать далее</a>";
+        return $line . "..." . "<a class='post-text__more-link' href='#'>Читать далее</a>";
         break;
       }
     }
   }
   else {
-   echo $t;
+   return $t;
   }
 }
  ?>
@@ -89,7 +89,7 @@ function text($t,$count){
             </div>
         </form>
         <div class="header__nav-wrapper">
-          <?php if ($is_auth===1): ?><!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
+          <?php if ($is_auth === 1): ?><!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
             <nav class="header__nav">
                 <ul class="header__my-nav">
                     <li class="header__my-page header__my-page--popular">
@@ -261,14 +261,12 @@ function text($t,$count){
                   <?php switch ($type):?><?php case 'post-quote':?>
                   <!--содержимое для поста-цитаты-->
                   <blockquote>
-                      <p>
-                          <?= $contain ?>
-                      </p>
+                      <p><?= $contain ?></p>
                       <cite>Неизвестный Автор</cite>
                   </blockquote>
                   <?php break; case 'post-text':?>
                   <!--содержимое для поста-текста-->
-                  <p><?php text($contain,70)?></p>
+                  <p><?= cropText ($contain, 70) ?></p>
                   <?php break; case 'post-photo':?>
                   <!--содержимое для поста-фото-->
                   <div class="post-photo__image-wrapper">
