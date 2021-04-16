@@ -30,6 +30,27 @@ $posts = [
   'Владик',
   'userpic.jpg']
 ];
+function cropText ($t, $count) {
+  $i = 0;
+  $line = "";
+  if (strlen ($t) > $count) {
+    $pieces = explode (" ", $t);
+    foreach ($pieces as $piece) {
+      $long = strlen ($piece);
+      $i = $i + $long+'1';
+      if ($i < $count) {
+        $line .= "$piece ";
+      }
+      else {
+        return $line . "..." . "<a class='post-text__more-link' href='#'>Читать далее</a>";
+        break;
+      }
+    }
+  }
+  else {
+   return $t;
+  }
+}
  ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -68,7 +89,7 @@ $posts = [
             </div>
         </form>
         <div class="header__nav-wrapper">
-          <?php if ($is_auth===1): ?><!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
+          <?php if ($is_auth === 1): ?><!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
             <nav class="header__nav">
                 <ul class="header__my-nav">
                     <li class="header__my-page header__my-page--popular">
@@ -240,14 +261,12 @@ $posts = [
                   <?php switch ($type):?><?php case 'post-quote':?>
                   <!--содержимое для поста-цитаты-->
                   <blockquote>
-                      <p>
-                          <?= $contain ?>
-                      </p>
+                      <p><?= $contain ?></p>
                       <cite>Неизвестный Автор</cite>
                   </blockquote>
                   <?php break; case 'post-text':?>
                   <!--содержимое для поста-текста-->
-                  <p><?= $contain ?></p>
+                  <p><?= cropText ($contain, 70) ?></p>
                   <?php break; case 'post-photo':?>
                   <!--содержимое для поста-фото-->
                   <div class="post-photo__image-wrapper">
