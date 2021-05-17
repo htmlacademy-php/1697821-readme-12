@@ -35,18 +35,19 @@ $posts = [
 require ('functions.php');
 
 $pageContent = include_template(
-  'main.php',
-  Array(
-    'posts' => $posts
-  )
+    'main.php',
+    [
+        'posts' => $posts
+    ]
 );
+
 $layoutContent = include_template(
-  'layout.php',
-  Array(
-    'mainContainer' => $pageContent,
-    'is_auth' => $is_auth,
-    'title' => $title
-  )
+    'layout.php',
+    [
+        'mainContainer' => $pageContent,
+        'is_auth' => $is_auth,
+        'title' => $title
+    ]
 );
-print ($layoutContent);
-?>
+
+print($layoutContent);
