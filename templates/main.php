@@ -87,14 +87,14 @@
         <?php foreach ($posts as list ($head, $type, $contain, $userName, $avatar)): ?>
             <article class="popular__post post <?= $type ?>">
                 <header class="post__header">
-                    <h2><?= htmlspecialchars($head) ?></h2>
+                    <h2><?= htmlspecialchars($head, ENT_QUOTES) ?></h2>
                 </header>
                 <div class="post__main">
                     <!--здесь содержимое карточки-->
                   <?php switch ($type):?><?php case 'post-quote':?>
                   <!--содержимое для поста-цитаты-->
                   <blockquote>
-                      <p><?= htmlspecialchars($contain) ?></p>
+                      <p><?= htmlspecialchars($contain, ENT_QUOTES) ?></p>
                       <cite>Неизвестный Автор</cite>
                   </blockquote>
                   <?php break; case 'post-text':?>
@@ -103,28 +103,28 @@
                   <?php break; case 'post-photo':?>
                   <!--содержимое для поста-фото-->
                   <div class="post-photo__image-wrapper">
-                      <img src="img/<?= htmlspecialchars($contain) ?>" alt="Фото от пользователя" width="360" height="240">
+                      <img src="img/<?= htmlspecialchars($contain, ENT_QUOTES) ?>" alt="Фото от пользователя" width="360" height="240">
                   </div>
                   <?php break; case 'post-link':?>
                   <!--содержимое для поста-ссылки-->
                   <div class="post-link__wrapper">
-                      <a class="post-link__external" href="http://<?= htmlspecialchars($contain) ?>" title="Перейти по ссылке">
+                      <a class="post-link__external" href="http://<?= htmlspecialchars($contain, ENT_QUOTES) ?>" title="Перейти по ссылке">
                           <div class="post-link__info-wrapper">
                               <div class="post-link__icon-wrapper">
                                   <img src="https://www.google.com/s2/favicons?domain=vitadental.ru" alt="Иконка">
                               </div>
                               <div class="post-link__info">
-                                  <h3><?= htmlspecialchars($contain) ?></h3>
+                                  <h3><?= htmlspecialchars($contain, ENT_QUOTES) ?></h3>
                               </div>
                           </div>
-                          <span><?= htmlspecialchars($contain) ?></span>
+                          <span><?= htmlspecialchars($contain, ENT_QUOTES) ?></span>
                       </a>
                   </div>
                   <?php break; case 'post-video':?>
                   <!--содержимое для поста-видео-->
                   <div class="post-video__block">
                       <div class="post-video__preview">
-                          <?= embed_youtube_cover(htmlspecialchars($contain)); ?>
+                          <?= embed_youtube_cover(htmlspecialchars($contain, ENT_QUOTES)); ?>
                           <img src="img/coast-medium.jpg" alt="Превью к видео" width="360" height="188">
                       </div>
                       <a href="post-details.html" class="post-video__play-big button">
@@ -141,7 +141,7 @@
                         <a class="post__author-link" href="#" title="Автор">
                             <div class="post__avatar-wrapper">
                                 <!--укажите путь к файлу аватара-->
-                                <img class="post__author-avatar" src="img/<?= htmlspecialchars($avatar) ?>" alt="Аватар пользователя">
+                                <img class="post__author-avatar" src="img/<?= htmlspecialchars($avatar, ENT_QUOTES) ?>" alt="Аватар пользователя">
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><!--здесь имя пользоателя--><?= strip_tags($userName) ?></b>
