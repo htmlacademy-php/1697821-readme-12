@@ -145,7 +145,9 @@
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><!--здесь имя пользоателя--><?= strip_tags($userName) ?></b>
-                                <time class="post__time" datetime="">дата</time>
+                                <time class="post__time" datetime="<?= $publishTime=generate_random_date($counter++) ?>" title="<?= date('d.m.Y H:i', strtotime($publishTime)) ?>">
+                                    <?= publication_life($publishTime) ?>
+                                </time>
                             </div>
                         </a>
                     </div>
