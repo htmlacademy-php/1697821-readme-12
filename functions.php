@@ -37,41 +37,52 @@ function include_template($name, array $data = [])
     return $result;
 }
 
-function generate_random_date($index)
+function generateRandomDate($index)
 {
-    $deltas = [['minutes' => 59], ['hours' => 23], ['days' => 6], ['weeks' => 4], ['months' => 11]];
-    $dcnt = count($deltas);
+    $deltas = [
+        [
+            'minutes' => 59
+        ],
+        [
+            'hours' => 23
+        ],
+        [
+            'days' => 6
+        ],
+        [
+            'weeks' => 4
+        ],
+        [
+            'months' => 11
+        ]
+    ];
+
+    $countElement = count($deltas);
 
     if ($index < 0) {
         $index = 0;
     }
 
-    if ($index >= $dcnt) {
-        $index = $dcnt - 1;
+    if ($index >= $countElement) {
+        $index = $countElement - 1;
     }
 
     $delta = $deltas[$index];
-    $timeval = rand(1, current($delta));
-    $timename = key($delta);
+    $timeVal = rand(1, current($delta));
+    $timeName = key($delta);
 
-    $ts = strtotime("$timeval $timename ago");
-    $dt = date('Y-m-d H:i:s', $ts);
+    $calculateTime = strtotime("$timeVal $timeName ago");
 
-    return $dt;
+    return date('Y-m-d H:i:s', $calculateTime);
 }
 
-function get_noun_plural_form(int $number, string $one, string $two, string $many)
+function getNounPluralForm(int $number, string $one, string $two, string $many)
 {
-    $number = (int)$number;
+    //$number = $number;
     $mod10 = $number % 10;
     $mod100 = $number % 100;
 
     switch (true) {
-        case ($mod100 >= 11 && $mod100 <= 20):
-            return $many;
-
-        case ($mod10 > 5):
-            return $many;
 
         case ($mod10 === 1):
             return $one;
@@ -79,21 +90,22 @@ function get_noun_plural_form(int $number, string $one, string $two, string $man
         case ($mod10 >= 2 && $mod10 <= 4):
             return $two;
 
+        case ($mod100 >= 11 && $mod100 <= 20):
+        case ($mod10 > 5):
         default:
             return $many;
     }
 }
 
-function publication_life($publishTime)
+function publicationLife($publishTime)
 {
-    $currentTime = time();
-    $differentTime = $currentTime - strtotime($publishTime);
+    $differentTime = time() - strtotime($publishTime);
 
     switch (true) {
         case ($differentTime < 3600):
             $differentTime = floor($differentTime / 60);
             return "{$differentTime} " .
-                get_noun_plural_form(
+                getNounPluralForm(
                     $differentTime,
                     'минута',
                     'минуты',
@@ -103,7 +115,7 @@ function publication_life($publishTime)
         case ($differentTime >= 3600 && $differentTime < 86400):
             $differentTime = floor($differentTime / 3600);
             return "{$differentTime} " .
-                get_noun_plural_form(
+                getNounPluralForm(
                     $differentTime,
                     'час',
                     'часа',
@@ -112,7 +124,7 @@ function publication_life($publishTime)
         case ($differentTime >= 86400 && $differentTime < 604800):
             $differentTime = floor($differentTime / 86400);
             return "{$differentTime} " .
-                get_noun_plural_form(
+                getNounPluralForm(
                     $differentTime,
                     'день',
                     'дня',
@@ -121,7 +133,7 @@ function publication_life($publishTime)
         case ($differentTime >= 604800 && $differentTime < 2419200):
             $differentTime = floor($differentTime / 604800);
             return "{$differentTime} " .
-                get_noun_plural_form(
+                getNounPluralForm(
                     $differentTime,
                     'неделя',
                     'недели',
@@ -130,7 +142,7 @@ function publication_life($publishTime)
         case ($differentTime >= 2419200):
             $differentTime = floor($differentTime / 2419200);
             return "{$differentTime} " .
-                get_noun_plural_form(
+                getNounPluralForm(
                     $differentTime,
                     'месяц',
                     'месяца',
