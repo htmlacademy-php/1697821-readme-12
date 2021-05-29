@@ -3,6 +3,7 @@ $is_auth = rand(0, 1);
 $user_name = 'Игорь'; // укажите здесь ваше имя
 ?>
 <?php
+date_default_timezone_set('Europe/Moscow');
 $title = 'Project site';
 $posts = [
   ['Цитата',
@@ -32,12 +33,15 @@ $posts = [
   'userpic.jpg']
 ];
 
+$counter = 0; // счетчик для функции generate_random_date
+
 require ('functions.php');
 
 $pageContent = include_template(
     'main.php',
     [
-        'posts' => $posts
+        'posts' => $posts,
+        'counter' => $counter
     ]
 );
 
