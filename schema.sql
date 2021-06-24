@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS readme;
 
-CREATE TABLE `readme`.`user` (
+CREATE TABLE `readme`.`users` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `email` VARCHAR(50) NOT NULL,
     `login` VARCHAR(50) NOT NULL,
@@ -8,18 +8,18 @@ CREATE TABLE `readme`.`user` (
     `avatar` VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE `readme`.`hashtag` (
+CREATE TABLE `readme`.`hashtags` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `hashtag` VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE `readme`.`type` (
+CREATE TABLE `readme`.`types` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(50) NOT NULL,
     `icon` VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE `readme`.`post` (
+CREATE TABLE `readme`.`posts` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     `title` VARCHAR(50) NOT NULL,
@@ -28,53 +28,54 @@ CREATE TABLE `readme`.`post` (
     `image` VARCHAR(50)  NULL,
     `video_link` VARCHAR(50)  NULL,
     `website_link` VARCHAR(50)  NULL,
-    `views` INT(11),
+    `views` INT(11) UNSIGNED,
     `user_id` INT(11) UNSIGNED NOT NULL,
     `type_id` INT(11) UNSIGNED NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user (id),
-    FOREIGN KEY (type_id) REFERENCES type (id)
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (type_id) REFERENCES types (id)
 );
 
-CREATE TABLE `readme`.`comment` (
+CREATE TABLE `readme`.`comments` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     `content` TEXT NOT NULL,
     `user_id` INT(11) UNSIGNED NULL,
     `post_id` INT(11) UNSIGNED NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user (id),
-    FOREIGN KEY (post_id) REFERENCES post (id)
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (post_id) REFERENCES posts (id)
 );
 
-CREATE TABLE `readme`.`like` (
+CREATE TABLE `readme`.`likes` (
     `user_id` INT(11) UNSIGNED NOT NULL,
     `post_id` INT(11) UNSIGNED NOT NULL,
     PRIMARY KEY (user_id, post_id),
-    FOREIGN KEY (user_id) REFERENCES user (id),
-    FOREIGN KEY (post_id) REFERENCES post (id)
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (post_id) REFERENCES posts (id)
 );
 
-CREATE TABLE `readme`.`subscription` (
+CREATE TABLE `readme`.`subscriptions` (
     `author` INT(11) UNSIGNED NOT NULL,
     `subscriber` INT(11) UNSIGNED NOT NULL,
     PRIMARY KEY (author, subscriber),
-    FOREIGN KEY (author) REFERENCES user (id),
-    FOREIGN KEY (subscriber) REFERENCES user (id)
+    FOREIGN KEY (author) REFERENCES users (id),
+    FOREIGN KEY (subscriber) REFERENCES users (id)
 );
 
-CREATE TABLE `readme`.`message` (
+CREATE TABLE `readme`.`messages` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `create_time` DATETIME NOT NULL,
     `content` TEXT NOT NULL,
     `author` INT(11) UNSIGNED NOT NULL,
     `receiver` INT(11) UNSIGNED NOT NULL,
-    FOREIGN KEY (author) REFERENCES user (id),
-    FOREIGN KEY (receiver) REFERENCES user (id)
+    FOREIGN KEY (author) REFERENCES users (id),
+    FOREIGN KEY (receiver) REFERENCES users (id)
 );
 
-CREATE TABLE `readme`.`post_hashtag` (
+/*как избежать данного наименования я так и не придумал*/
+CREATE TABLE `readme`.`posts_hashtags` (
     `post_id` INT(11) UNSIGNED NOT NULL,
     `hashtag_id` INT(11) UNSIGNED NOT NULL,
     PRIMARY KEY (post_id, hashtag_id),
-    FOREIGN KEY (post_id) REFERENCES post (id),
-    FOREIGN KEY (hashtag_id) REFERENCES hashtag (id)
+    FOREIGN KEY (post_id) REFERENCES posts (id),
+    FOREIGN KEY (hashtag_id) REFERENCES hashtags (id)
 );
