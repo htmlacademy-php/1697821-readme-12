@@ -3,43 +3,43 @@ USE readme;
 
 -- добавление в БД типов контента для поста
 INSERT INTO types
-SET name        = 'Текст',
-    icon        = 'text';
+SET name        = 'text',
+    icon        = 'icon-filter-text';
 INSERT INTO types
-SET name        = 'Цитата',
-    icon        = 'quote';
+SET name        = 'quote',
+    icon        = 'icon-filter-quote';
 INSERT INTO types
-SET name        = 'Картинка',
-    icon        = 'photo';
+SET name        = 'photo',
+    icon        = 'icon-filter-photo';
 INSERT INTO types
-SET name        = 'Видео',
-    icon        = 'video';
+SET name        = 'video',
+    icon        = 'icon-filter-video';
 INSERT INTO types
-SET name        = 'Ссылка',
-    icon        = 'link';
+SET name        = 'link',
+    icon        = 'icon-filter-link';
 
--- добавление в БД типов контента для поста
+-- добавление в БД пользователей
 INSERT INTO users
-SET email        = 'user1@mail.ru',
-    login        = 'user1',
-    password     = 'user1',
-    avatar       = '';
+SET email        = 'larisa@mail.ru',
+    login        = 'Лариса',
+    password     = 'larisa',
+    avatar       = 'userpic-larisa-small.jpg';
 INSERT INTO users
-SET email        = 'user2@mail.ru',
-    login        = 'user2',
-    password     = 'user2',
-    avatar       = '';
+SET email        = 'vladik@mail.ru',
+    login        = 'Владик',
+    password     = 'vladik',
+    avatar       = 'userpic.jpg';
 INSERT INTO users
-SET email        = 'user3@mail.ru',
-    login        = 'user3',
-    password     = 'user3',
-    avatar       = '';
+SET email        = 'victor@mail.ru',
+    login        = 'Виктор',
+    password     = 'victor',
+    avatar       = 'userpic-mark.jpg';
 
 -- добавление в БД несколько постов
 INSERT INTO posts
 SET /*created_at         = '',*/
-  title = 'заголовок',
-  content = 'интересный текст',
+  title = 'Цитата',
+  content = 'Мы в жизни любим только раз, а после ищем лишь похожих',
   author = '',
   image = '',
   video_link = '',
@@ -49,26 +49,26 @@ SET /*created_at         = '',*/
   type_id = '2';
 INSERT INTO posts
 SET /*created_at         = '',*/
-  title = 'заголовок2',
-  content = 'интересный текст2',
+  title = 'Игра престолов',
+  content = 'Не могу дождаться начала финального сезона своего любимого сериала!',
   author = '',
   image = '',
   video_link = '',
   website_link = '',
   views = '17',
   user_id = '2',
-  type_id = '4';
+  type_id = '1';
 INSERT INTO posts
 SET /*created_at         = '',*/
-  title = 'заголовок3',
-  content = 'интересный текст3',
+  title = 'Наконец, обработал фотки!',
+  content = '',
   author = '',
-  image = '',
+  image = 'rock-medium.jpg',
   video_link = '',
   website_link = '',
   views = '78',
   user_id = '3',
-  type_id = '1';
+  type_id = '3';
 
 -- добавление в БД несколько комментариев
 INSERT INTO comments
@@ -78,9 +78,9 @@ SET /*created_at         = '',*/
   post_id = '1';
 INSERT INTO comments
 SET /*created_at         = '',*/
-  content = 'очень интересно2',
+  content = 'Красивое',
   user_id = '1',
-  post_id = '2';
+  post_id = '3';
 
 -- получение списка постов с сортировкой по популярности и вместе с именами авторов и типом контента
 SELECT  posts.id                AS "post_id",
