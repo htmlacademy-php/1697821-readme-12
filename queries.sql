@@ -1,116 +1,111 @@
--- Используем базу данных
-USE readme;
-
 -- добавление в БД типов контента для поста
 INSERT INTO types
-SET name        = 'text',
-    icon        = 'icon-filter-text';
+SET title        = 'text',
+    icon_url     = 'icon-filter-text';
 INSERT INTO types
-SET name        = 'quote',
-    icon        = 'icon-filter-quote';
+SET title        = 'quote',
+    icon_url     = 'icon-filter-quote';
 INSERT INTO types
-SET name        = 'photo',
-    icon        = 'icon-filter-photo';
+SET title        = 'photo',
+    icon_url     = 'icon-filter-photo';
 INSERT INTO types
-SET name        = 'video',
-    icon        = 'icon-filter-video';
+SET title        = 'video',
+    icon_url     = 'icon-filter-video';
 INSERT INTO types
-SET name        = 'link',
-    icon        = 'icon-filter-link';
+SET title        = 'link',
+    icon_url     = 'icon-filter-link';
 
 -- добавление в БД пользователей
 INSERT INTO users
 SET email        = 'larisa@mail.ru',
     login        = 'Лариса',
     password     = 'larisa',
-    avatar       = 'userpic-larisa-small.jpg';
+    avatar_url   = 'userpic-larisa-small.jpg';
 INSERT INTO users
 SET email        = 'vladik@mail.ru',
     login        = 'Владик',
     password     = 'vladik',
-    avatar       = 'userpic.jpg';
+    avatar_url   = 'userpic.jpg';
 INSERT INTO users
 SET email        = 'victor@mail.ru',
     login        = 'Виктор',
     password     = 'victor',
-    avatar       = 'userpic-mark.jpg';
+    avatar_url   = 'userpic-mark.jpg';
 
 -- добавление в БД несколько постов
 INSERT INTO posts
 SET /*created_at         = '',*/
   title = 'Цитата',
   content = 'Мы в жизни любим только раз, а после ищем лишь похожих',
-  author = '',
-  image = '',
-  video_link = '',
-  website_link = '',
-  views = '10',
-  user_id = '1',
-  type_id = '2';
+  views_count = 10,
+  user_id = 1,
+  type_id = 2;
 INSERT INTO posts
 SET /*created_at         = '',*/
   title = 'Игра престолов',
   content = 'Не могу дождаться начала финального сезона своего любимого сериала!',
-  author = '',
-  image = '',
-  video_link = '',
-  website_link = '',
-  views = '17',
-  user_id = '2',
-  type_id = '1';
+  views_count = 17,
+  user_id = 2,
+  type_id = 1;
 INSERT INTO posts
 SET /*created_at         = '',*/
   title = 'Наконец, обработал фотки!',
-  content = '',
-  author = '',
-  image = 'rock-medium.jpg',
-  video_link = '',
-  website_link = '',
-  views = '78',
-  user_id = '3',
-  type_id = '3';
+  image_url = 'rock-medium.jpg',
+  views_count = 78,
+  user_id = 3,
+  type_id = 3;
 
 -- добавление в БД несколько комментариев
 INSERT INTO comments
 SET /*created_at         = '',*/
   content = 'очень интересно',
-  user_id = '2',
-  post_id = '1';
+  user_id = 2,
+  post_id = 1;
 INSERT INTO comments
 SET /*created_at         = '',*/
   content = 'Красивое',
-  user_id = '1',
-  post_id = '3';
+  user_id = 1,
+  post_id = 3;
 
 -- получение списка постов с сортировкой по популярности и вместе с именами авторов и типом контента
 SELECT  posts.id                AS "post_id",
         posts.title             AS "post_title",
+        users.id                AS "user_id",
         users.login             AS "post_author",
-        types.name              AS "tipe_content",
-        posts.views             AS "views"
+        types.id                AS "types_id",
+        types.title             AS "type_content",
+        posts.views_count       AS "views_count"
 FROM posts
           INNER JOIN users ON posts.user_id = users.id
           INNER JOIN types ON posts.type_id = types.id
-ORDER BY posts.views DESC;
+ORDER BY posts.views_count DESC;
 
 -- получение списка постов для конкретного пользователя
-SELECT  users.login             AS "user_login",
+SELECT  users.id                AS "user_id",
+        users.login             AS "user_login",
         posts.id                AS "post_id",
         posts.title             AS "post_title"
 FROM users
           LEFT JOIN posts ON users.id = posts.user_id
-WHERE users.login = 'user1';
+WHERE users.id = 1;
 
 -- получить список комментариев для одного поста, в комментариях должен быть логин пользователя
-SELECT  users.login              AS "user_login",
-        comments.content         AS "comment"
+SELECT  users.id                AS "user_id",
+        users.login             AS "user_login",
+        comments.content        AS "text_comment"
 FROM posts
           LEFT JOIN users ON posts.user_id = users.id
           LEFT JOIN comments ON posts.id = comments.post_id
-WHERE posts.id = '1';
+WHERE posts.id = 1;
 
 -- добавить лайк к посту
-INSERT INTO likes VALUES ('2', '3');
+INSERT INTO likes
+SET
+    user_id = 2,
+    post_id = 3;
 
 -- подписаться на пользователя
-INSERT INTO subscriptions VALUES ('1', '2');
+INSERT INTO subscriptions
+SET
+    subscribed_to_user_id = 2,
+    subscriber_user_id = 3;
