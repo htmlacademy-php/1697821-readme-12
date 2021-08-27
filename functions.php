@@ -1,17 +1,21 @@
 <?php
-function cropText($text, $count)
+
+function cropText($text,$count)
 {
     $i = 0;
     $line = "";
     if (strlen($text) > $count) {
-        $pieces = explode(" ", $text);
+        $pieces = explode(" ",$text);
         foreach ($pieces as $piece) {
             $long = strlen($piece);
-            $i = $i + $long+'1'; //+1 для учитывания пробела между словами
+            $i = $i + $long + '1'; //+1 для учитывания пробела между словами
             if ($i < $count) {
                 $line .= "$piece ";
             } else {
-                return htmlspecialchars($line, ENT_QUOTES) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
+                return htmlspecialchars(
+                        $line,
+                        ENT_QUOTES
+                    ) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
             }
         }
     } else {
@@ -19,7 +23,7 @@ function cropText($text, $count)
     }
 }
 
-function include_template($name, array $data = [])
+function include_template($name,array $data = [])
 {
     $name = 'templates/' . $name;
     $result = '';
@@ -68,23 +72,22 @@ function generateRandomDate($index)
     }
 
     $delta = $deltas[$index];
-    $timeVal = rand(1, current($delta));
+    $timeVal = rand(1,current($delta));
     $timeName = key($delta);
 
     $calculateTime = strtotime("$timeVal $timeName ago");
 
-    return date('Y-m-d H:i:s', $calculateTime);
+    return date('Y-m-d H:i:s',$calculateTime);
 }
 
-function getNounPluralForm(int $number, string $one, string $two, string $many)
+function getNounPluralForm(int $number,string $one,string $two,string $many)
 {
     //$number = $number;
     $mod10 = $number % 10;
     $mod100 = $number % 100;
 
     switch (true) {
-
-        case ($mod10 === 1):
+        case ($mod10===1):
             return $one;
 
         case ($mod10 >= 2 && $mod10 <= 4):
