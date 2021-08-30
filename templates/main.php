@@ -1,9 +1,10 @@
 <?php
 /**
- * @var array $posts    --массив постов
- * @var array $types    --массив типов постов
- * @var $counter    --счетчик
+ * @var array $posts --массив постов
+ * @var array $types --массив типов постов
+ * @var $counter --счетчик
  */
+
 ?>
 <div class="container">
     <h1 class="page__title page__title--popular">Популярное</h1>
@@ -68,7 +69,7 @@
         foreach ($posts as $post): ?>
             <article class="popular__post post post-<?= $post['type_title'] ?>">
                 <header class="post__header">
-                    <h2><?= htmlspecialchars($post['title'],ENT_QUOTES) ?></h2>
+                    <h2><?= htmlspecialchars($post['title'], ENT_QUOTES) ?></h2>
                 </header>
                 <div class="post__main">
                     <!--здесь содержимое карточки-->
@@ -77,7 +78,7 @@
                         case 'quote': ?>
                             <!--содержимое для поста-цитаты-->
                             <blockquote>
-                                <p><?= htmlspecialchars($post['content'],ENT_QUOTES) ?></p>
+                                <p><?= htmlspecialchars($post['content'], ENT_QUOTES) ?></p>
                                 <cite>
                                     <?php
                                     if (!isset($post['author_quote'])) {
@@ -92,13 +93,13 @@
                             break;
                         case 'text': ?>
                             <!--содержимое для поста-текста-->
-                            <p><?= cropText($post['content'],70) ?></p>
+                            <p><?= cropText($post['content'], 70) ?></p>
                             <?php
                             break;
                         case 'photo': ?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
-                                <img src="img/<?= htmlspecialchars($post['image_url'],ENT_QUOTES) ?>"
+                                <img src="img/<?= htmlspecialchars($post['image_url'], ENT_QUOTES) ?>"
                                      alt="Фото от пользователя" width="360" height="240">
                             </div>
                             <?php
@@ -107,7 +108,7 @@
                             <!--содержимое для поста-ссылки-->
                             <div class="post-link__wrapper">
                                 <a class="post-link__external"
-                                   href="<?= htmlspecialchars($post['website_url'],ENT_QUOTES) ?>"
+                                   href="<?= htmlspecialchars($post['website_url'], ENT_QUOTES) ?>"
                                    title="Перейти по ссылке">
                                     <div class="post-link__info-wrapper">
                                         <div class="post-link__icon-wrapper">
@@ -115,10 +116,10 @@
                                                  alt="Иконка">
                                         </div>
                                         <div class="post-link__info">
-                                            <h3><?= htmlspecialchars($post['website_url'],ENT_QUOTES) ?></h3>
+                                            <h3><?= htmlspecialchars($post['website_url'], ENT_QUOTES) ?></h3>
                                         </div>
                                     </div>
-                                    <span><?= htmlspecialchars($post['website_url'],ENT_QUOTES) ?></span>
+                                    <span><?= htmlspecialchars($post['website_url'], ENT_QUOTES) ?></span>
                                 </a>
                             </div>
                             <?php
@@ -127,11 +128,10 @@
                             <!--содержимое для поста-видео-->
                             <div class="post-video__block">
                                 <div class="post-video__preview">
-                                    <?= embed_youtube_cover(htmlspecialchars($post['video_url'],ENT_QUOTES)); ?>
+                                    <?= embed_youtube_cover(htmlspecialchars($post['video_url'], ENT_QUOTES)); ?>
                                     <img src="img/coast-medium.jpg" alt="Превью к видео" width="360" height="188">
-                                    <!-- --todo можно ли как нибудь решить данный warning с поиском путей в hph storm-->
                                 </div>
-                                <a href="post-details.html" class="post-video__play-big button">
+                                <a href="/html/post-details.html" class="post-video__play-big button">
                                     <svg class="post-video__play-big-icon" width="14" height="14">
                                         <use xlink:href="#icon-video-play-big"></use>
                                     </svg>
@@ -147,7 +147,7 @@
                             <div class="post__avatar-wrapper">
                                 <!--укажите путь к файлу аватара-->
                                 <img class="post__author-avatar"
-                                     src="img/<?= htmlspecialchars($post['user_avatar_url'],ENT_QUOTES) ?>"
+                                     src="img/<?= htmlspecialchars($post['user_avatar_url'], ENT_QUOTES) ?>"
                                      alt="Аватар пользователя">
                             </div>
                             <div class="post__info">
@@ -155,7 +155,7 @@
                                         $post['user_login']
                                     ) ?></b>
                                 <time class="post__time" datetime="<?= $publishTime = generateRandomDate($counter++) ?>"
-                                      title="<?= date('d.m.Y H:i',strtotime($publishTime)) ?>">
+                                      title="<?= date('d.m.Y H:i', strtotime($publishTime)) ?>">
                                     <?= publicationLife($publishTime) ?>
                                 </time>
                             </div>
