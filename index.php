@@ -8,7 +8,7 @@ $title = 'Project site';
 
 $counter = 0; // счетчик для функции generate_random_date
 
-require_once 'constant.php';
+require_once 'constants.php';
 require_once 'functions.php';
 require_once 'sql-connect.php';
 

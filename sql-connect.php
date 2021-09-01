@@ -2,7 +2,7 @@
 
 /**
  * Функция db_connection производит подключение к базе данных.
- * Переменные db_hostname, db_username, db_password, db_name находятся в файле constant.php.
+ * Переменные db_hostname, db_username, db_password, db_name находятся в файле constants.php.
  * Если подключение не выполнено, то происходит вывод ошибки подключения и операции приостанавливаются.
  * @return mysqli|void
  */
@@ -37,7 +37,8 @@ function get_content_types($connect)
 }
 
 /**
- * Функция получает 6 самых популярных постов из БД readme.
+ * Функция получает 6 (число можно изменить изменив константу quality_popular_posts)
+ * самых популярных постов из БД readme.
  * Возвращает массив содержащий данные поста,
  * объединённых с данными пользователей, типами постов и отсортированные по популярности.
  * Если подключение не выполнено, то происходит вывод ошибки подключения и операции приостанавливаются.
@@ -63,7 +64,7 @@ function get_list_posts($connect)
 FROM posts
           INNER JOIN users ON posts.user_id = users.id
           INNER JOIN types ON posts.type_id = types.id
-ORDER BY posts.views_count DESC LIMIT 6";
+ORDER BY posts.views_count DESC LIMIT ".quality_popular_posts;
 
     $result_posts = mysqli_query($connect, $sql_posts);
 

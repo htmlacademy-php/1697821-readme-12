@@ -121,8 +121,7 @@
             </div>
         </form>
         <div class="header__nav-wrapper">
-            <?php
-            if ($is_auth === 1): ?><!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
+            <?php if ($is_auth === 1): ?><!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
             <nav class="header__nav">
                 <ul class="header__my-nav">
                     <li class="header__my-page header__my-page--popular">
@@ -192,15 +191,12 @@
                     </li>
                 </ul>
             </nav>
-            <?php
-            endif ?>
+            <?php endif ?>
         </div>
     </div>
 </header>
 
-<section class="page__main page__main--popular">
-    <?= $mainContainer ?>
-</section>
+<?= $mainContainer ?>
 
 <footer class="footer">
     <div class="footer__wrapper">
