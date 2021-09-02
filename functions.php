@@ -1,4 +1,11 @@
 <?php
+
+/**
+ * Функция для обрезания текста, если он превышает заданную длину
+ * @param string $text Входящий текст
+ * @param int $count Кол-во символов до обрезания
+ * @return mixed|string|void
+ */
 function cropText($text, $count)
 {
     $i = 0;
@@ -7,11 +14,14 @@ function cropText($text, $count)
         $pieces = explode(" ", $text);
         foreach ($pieces as $piece) {
             $long = strlen($piece);
-            $i = $i + $long+'1'; //+1 для учитывания пробела между словами
+            $i = $i + $long + 1; //+1 для учитывания пробела между словами
             if ($i < $count) {
                 $line .= "$piece ";
             } else {
-                return htmlspecialchars($line, ENT_QUOTES) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
+                return htmlspecialchars(
+                        $line,
+                        ENT_QUOTES
+                    ) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
             }
         }
     } else {
@@ -19,6 +29,12 @@ function cropText($text, $count)
     }
 }
 
+/**
+ * Подключает шаблон, передает туда данные и возвращает итоговый HTML контент
+ * @param string $name Путь к файлу шаблона относительно папки templates
+ * @param array $data Ассоциативный массив с данными для шаблона
+ * @return string Итоговый HTML
+ */
 function include_template($name, array $data = [])
 {
     $name = 'templates/' . $name;
@@ -37,6 +53,11 @@ function include_template($name, array $data = [])
     return $result;
 }
 
+/**
+ * Функция для генерации случайной даты вида Y-m-d H:i:s
+ * @param $index
+ * @return false|string
+ */
 function generateRandomDate($index)
 {
     $deltas = [
@@ -76,6 +97,28 @@ function generateRandomDate($index)
     return date('Y-m-d H:i:s', $calculateTime);
 }
 
+/**
+ * Возвращает корректную форму множественного числа
+ * Ограничения: только для целых чисел
+ *
+ * Пример использования:
+ * $remaining_minutes = 5;
+ * echo "Я поставил таймер на {$remaining_minutes} ".
+ *     get_noun_plural_form(
+ *         $remaining_minutes,
+ *         'минута',
+ *         'минуты',
+ *         'минут'
+ *     );
+ * Результат: "Я поставил таймер на 5 минут"
+ *
+ * @param int $number Число, по которому вычисляем форму множественного числа
+ * @param string $one Форма единственного числа: яблоко, час, минута
+ * @param string $two Форма множественного числа для 2, 3, 4: яблока, часа, минуты
+ * @param string $many Форма множественного числа для остальных чисел
+ *
+ * @return string Рассчитанная форма множественного числа
+ */
 function getNounPluralForm(int $number, string $one, string $two, string $many)
 {
     //$number = $number;
@@ -83,7 +126,6 @@ function getNounPluralForm(int $number, string $one, string $two, string $many)
     $mod100 = $number % 100;
 
     switch (true) {
-
         case ($mod10 === 1):
             return $one;
 
@@ -97,6 +139,11 @@ function getNounPluralForm(int $number, string $one, string $two, string $many)
     }
 }
 
+/**
+ * Функция для подсчета времени, прошедшего с момента публикации
+ * @param $publishTime - время публикации
+ * @return string - сколько прошло времени с момента публикации
+ */
 function publicationLife($publishTime)
 {
     $differentTime = time() - strtotime($publishTime);
