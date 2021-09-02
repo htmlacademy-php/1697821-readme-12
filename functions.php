@@ -140,6 +140,49 @@ function getNounPluralForm(int $number, string $one, string $two, string $many)
 }
 
 /**
+ * Возвращает img-тег с обложкой видео для вставки на страницу
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return string
+ */
+function embed_youtube_cover($youtube_url)
+{
+    $res = "";
+    $id = extract_youtube_id($youtube_url);
+
+    if ($id) {
+        $src = sprintf("https://img.youtube.com/vi/%s/mqdefault.jpg", $id);
+        $res = '<img alt="youtube cover" width="320" height="120" src="' . $src . '" />';
+    }
+
+    return $res;
+}
+
+/**
+ * Извлекает из ссылки на youtube видео его уникальный ID
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return array
+ */
+function extract_youtube_id($youtube_url)
+{
+    $id = false;
+
+    $parts = parse_url($youtube_url);
+
+    if ($parts) {
+        if ($parts['path'] == '/watch') {
+            parse_str($parts['query'], $vars);
+            $id = $vars['v'] ?? null;
+        } else {
+            if ($parts['host'] == 'youtu.be') {
+                $id = substr($parts['path'], 1);
+            }
+        }
+    }
+
+    return $id;
+}
+
+/**
  * Функция для подсчета времени, прошедшего с момента публикации
  * @param $publishTime - время публикации
  * @return string - сколько прошло времени с момента публикации
@@ -198,4 +241,15 @@ function publicationLife($publishTime)
         default:
             return "Время";
     }
+}
+
+/**
+ * Функция для вытаскивания заголовка с вебсайта
+ * @param $link_url
+ * @return mixed
+ */
+function get_link_url_title($link_url){
+    $url_contents = file_get_contents($link_url);
+    preg_match("/<title>(.*)<\/title>/i", $url_contents, $matches);
+    return $matches['1'];
 }

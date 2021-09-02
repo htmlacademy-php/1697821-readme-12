@@ -54,6 +54,28 @@ SET /*created_at         = '',*/
   views_count = 78,
   user_id = 3,
   type_id = 3;
+INSERT INTO posts
+SET /*created_at         = '',*/
+    title = 'Новый видос',
+    video_url = 'https://www.youtube.com/watch?v=doq943OoSdg',
+    views_count = 30,
+    user_id = 3,
+    type_id = 4;
+INSERT INTO posts
+SET /*created_at         = '',*/
+    title = 'Интересный сайт для обучения',
+    website_url = 'http://code.mu/',
+    views_count = 150,
+    user_id = 2,
+    type_id = 5;
+INSERT INTO posts
+SET /*created_at         = '',*/
+    title = 'Мысль',
+    content = 'Недостаточно овладеть премудростью, нужно также уметь пользоваться ею.',
+    author_quote = 'Цицерон',
+    views_count = 10,
+    user_id = 1,
+    type_id = 2;
 
 -- добавление в БД несколько комментариев
 INSERT INTO comments
@@ -98,11 +120,19 @@ FROM posts
           LEFT JOIN comments ON posts.id = comments.post_id
 WHERE posts.id = 1;
 
--- добавить лайк к посту
+-- добавить лайки к постам
 INSERT INTO likes
 SET
     user_id = 2,
     post_id = 3;
+INSERT INTO likes
+SET
+    user_id = 1,
+    post_id = 4;
+INSERT INTO likes
+SET
+    user_id = 2,
+    post_id = 4;
 
 -- подписаться на пользователя
 INSERT INTO subscriptions
