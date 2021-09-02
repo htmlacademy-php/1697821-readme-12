@@ -178,8 +178,25 @@ function extract_youtube_id($youtube_url)
             }
         }
     }
-
     return $id;
+}
+
+/**
+ * Возвращает код iframe для вставки youtube видео на страницу
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return string
+ */
+function embed_youtube_video($youtube_url)
+{
+    $res = "";
+    $id = extract_youtube_id($youtube_url);
+
+    if ($id) {
+        $src = "https://www.youtube.com/embed/" . $id;
+        $res = '<iframe width="760" height="400" src="' . $src . '" frameborder="0"></iframe>';
+    }
+
+    return $res;
 }
 
 /**
@@ -252,4 +269,109 @@ function get_link_url_title($link_url){
     $url_contents = file_get_contents($link_url);
     preg_match("/<title>(.*)<\/title>/i", $url_contents, $matches);
     return $matches['1'];
+}
+
+/**
+ * Функция для добавления классов в виды сортировок
+ * @param $page_params
+ * @param $sort_type
+ * @return string
+ */
+function popularAddClass ($page_params, $sort_type)
+{
+    $popularAddClass = '';
+    if (!empty($page_params['sort_type']) && $page_params['sort_type'] == $sort_type) {
+        $popularAddClass .= " sorting__link--active";
+    }
+    if ($page_params['sort_direction'] == 'asc') {
+        $popularAddClass .= " sorting__link--reverse";
+    }
+    return $popularAddClass;
+}
+
+/**
+ * Массив для проверки данных сортировки
+ * @return array
+ */
+function getPageDefaultParams()
+{
+    return [
+        "type_id" => [0, 1, 2, 3, 4, 5],
+        "sort_type" => ["popular", "like", "date"],
+        "sort_direction" => ["asc", "desc"]
+    ];
+}
+
+
+/**
+ * Функция задает параметры страницы Популярное
+ * Вначале задаются дефолтные параметры страницы
+ * Если есть параметры, полученные из GET запроса,
+ * то перезаписывает этот параметр в массиве page_params,
+ * если они проходят проверку.
+ * @return array
+ */
+function popular_params()
+{
+    $avail_params = getPageDefaultParams();
+
+    $page_params = ["type_id" => 0, "sort_type" => "popular", "sort_direction" => "desc"];
+
+    if (!empty($_GET["type_id"])) {
+        $type_id = filter_input(INPUT_GET, "type_id", FILTER_SANITIZE_NUMBER_INT);
+        if (in_array($type_id, $avail_params["type_id"])) {
+            $page_params["type_id"] = $type_id;
+        }
+    }
+    if (!empty($_GET["sort_type"])) {
+        $type_id = filter_input(INPUT_GET,"sort_type", FILTER_SANITIZE_STRING);
+        if (in_array($type_id, $avail_params["sort_type"])) {
+            $page_params["sort_type"] = $type_id;
+        }
+    }
+    if (!empty($_GET["sort_direction"])) {
+        $type_id = filter_input(INPUT_GET,"sort_direction", FILTER_SANITIZE_STRING);
+        if (in_array($type_id, $avail_params["sort_direction"])) {
+            $page_params["sort_direction"] = $type_id;
+        }
+    }
+    return $page_params;
+}
+
+/**
+ * Функция для генерации параметров ссылок сортировки
+ * На вход подается массив текущих параметров и массив параметров для ссылки
+ * На выходе мы получаем обновленный массив параметров
+ * @param array $page_params
+ * @param array $mod_params
+ * @param false $reverseSort
+ * @return array|mixed
+ */
+function mod_page_params($page_params = [], array $mod_params = [], $reverseSort = false)
+{
+    if (!empty($mod_params["sort_type"]) && $page_params["sort_type"] != $mod_params["sort_type"]){
+        $reverseSort = false;
+        $page_params["sort_direction"] = "desc";
+    }
+
+    if ($reverseSort) {
+        $page_params['sort_direction'] = ($page_params['sort_direction'] == 'asc') ? 'desc' : 'asc';
+    }
+
+    foreach ($mod_params as $mod => $value) {
+        $page_params[$mod] = $value;
+    }
+    return $page_params;
+}
+
+/**
+ * Функция гля генерации ссылки сортировки
+ * @param array $page_params
+ * @param array $mod_params
+ * @param false $reverseSort
+ * @return string
+ */
+function getModPageQuery($page_params = [], array $mod_params = [], $reverseSort = false){
+    $params = mod_page_params($page_params,$mod_params,$reverseSort);
+    return http_build_query($params);
 }

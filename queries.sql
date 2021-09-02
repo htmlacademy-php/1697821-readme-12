@@ -88,6 +88,31 @@ SET /*created_at         = '',*/
   content = 'Красивое',
   user_id = 1,
   post_id = 3;
+INSERT INTO comments
+SET /*created_at         = '',*/
+    content = 'Непонятно',
+    user_id = 2,
+    post_id = 1;
+INSERT INTO comments
+SET /*created_at         = '',*/
+    content = 'Интересно',
+    user_id = 3,
+    post_id = 1;
+INSERT INTO comments
+SET /*created_at         = '',*/
+    content = 'Круто',
+    user_id = 1,
+    post_id = 1;
+INSERT INTO comments
+SET /*created_at         = '',*/
+    content = 'Красивое2',
+    user_id = 2,
+    post_id = 1;
+INSERT INTO comments
+SET /*created_at         = '',*/
+    content = 'Красивое4',
+    user_id = 3,
+    post_id = 1;
 
 -- получение списка постов с сортировкой по популярности и вместе с именами авторов и типом контента
 SELECT  posts.id                AS "post_id",
@@ -139,3 +164,12 @@ INSERT INTO subscriptions
 SET
     subscribed_to_user_id = 2,
     subscriber_user_id = 3;
+
+-- добавить хэштэги
+INSERT INTO hashtags (title)
+VALUES ('картина'),('прекрасно'),('невообразимо');
+
+-- добавить связи хэштеги и посты
+INSERT INTO post_hashtags (post_id, hashtag_id) VALUES
+(1,1),(1,2),(1,3),(2,1);
+

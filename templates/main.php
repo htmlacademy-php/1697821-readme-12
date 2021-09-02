@@ -16,7 +16,8 @@
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link sorting__link--active" href="#">
+                        <a class="sorting__link<?= popularAddClass($page_params, 'popular'); ?>"
+                           href="/index.php?<?= getModPageQuery($page_params, ["sort_type" => "popular"], true); ?>">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -24,7 +25,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link" href="#">
+                        <a class="sorting__link<?= popularAddClass($page_params, 'like'); ?>"
+                           href="/index.php?<?= getModPageQuery($page_params, ["sort_type" => "like"], true); ?>">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -32,7 +34,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link" href="#">
+                        <a class="sorting__link<?= popularAddClass($page_params, 'date'); ?>"
+                           href="/index.php?<?= getModPageQuery($page_params, ["sort_type" => "date"], true); ?>">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -45,14 +48,17 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all filters__button--active"
-                           href="#">
+                        <a class="filters__button filters__button--ellipse filters__button--all
+                        <?= $page_params["type_id"] == 0 ? "filters__button--active" : "" ?>"
+                           href="/index.php">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($types as $type): ?>
                         <li class="popular__filters-item filters__item">
-                            <a class="filters__button filters__button--photo button" href="#">
+                            <a class="filters__button filters__button--<?= $type['title'] ?> button
+                            <?= (isset($type['id']) && $page_params["type_id"] == $type['id']) ? "filters__button--active":""?>"
+                               href="/index.php?<?= getModPageQuery($page_params, ["type_id" => $type["id"], "sort_type" => "popular"], false); ?>">
                                 <span class="visually-hidden"><?= $type['title'] ?></span>
                                 <svg class="filters__icon" width="22" height="18">
                                     <use xlink:href="#<?= $type['icon_url'] ?>"></use>
@@ -119,7 +125,7 @@
                                          height="17">
                                         <use xlink:href="#icon-heart-active"></use>
                                     </svg>
-                                    <span>0</span>
+                                    <span><?= $post['count_post_likes'] ?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
                                 <a class="post__indicator post__indicator--comments button" href="#"
@@ -127,7 +133,7 @@
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
-                                    <span>0</span>
+                                    <span><?= $post['count_post_comments'] ?></span>
                                     <span class="visually-hidden">количество комментариев</span>
                                 </a>
                             </div>

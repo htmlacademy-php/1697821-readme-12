@@ -7,3 +7,5 @@ const db_name = "readme";
 
 const quality_popular_posts = 6; // число ограничивающее количество постов на странице Популярное
 
+const count_show_comments = "5"; // число ограничивающее показ комментариев на странице post.php
+
