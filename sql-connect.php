@@ -6,9 +6,9 @@
  * Если подключение не выполнено, то происходит вывод ошибки подключения и операции приостанавливаются.
  * @return mysqli|void
  */
-function db_connection()
+function dbConnection()
 {
-    $connect = mysqli_connect(db_hostname, db_username, db_password, db_name);
+    $connect = mysqli_connect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_NAME);
     mysqli_set_charset($connect, "utf8");
 
     if ($connect == false) {
@@ -24,16 +24,16 @@ function db_connection()
  * @param $connect
  * @return array|void
  */
-function get_content_types($connect)
+function getContentTypes($connect)
 {
-    $sql_category = "SELECT id, title, icon_url FROM types";
-    $result_category = mysqli_query($connect, $sql_category);
+    $sqlCategory = "SELECT id, title, icon_url FROM types";
+    $resultCategory = mysqli_query($connect, $sqlCategory);
 
-    if (!$result_category) {
+    if (!$resultCategory) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
     }
 
-    return mysqli_fetch_all($result_category, MYSQLI_ASSOC);
+    return mysqli_fetch_all($resultCategory, MYSQLI_ASSOC);
 }
 
 /**
@@ -43,27 +43,27 @@ function get_content_types($connect)
  * объединённых с данными пользователей, типами постов и отсортированные по популярности.
  * Если подключение не выполнено, то происходит вывод ошибки подключения и операции приостанавливаются.
  * @param $connect
- * @param $type_id - для сортировки по типу поста
- * @param $sort_type - для сортировки по популярности, лайкам или дате
- * @param $sort_direction - для сортировки ASC, DESC
+ * @param $typeId - для сортировки по типу поста
+ * @param $sortType - для сортировки по популярности, лайкам или дате
+ * @param $sortDirection - для сортировки ASC, DESC
  * @return array|void
  */
-function get_list_posts($connect, $type_id, $sort_type, $sort_direction)
+function getListPosts($connect, $typeId, $sortType, $sortDirection)
 {
     $order = "";
-    switch ($sort_type) {
+    switch ($sortType) {
         case 'popular':
-            $order = " posts.views_count $sort_direction";
+            $order = " posts.views_count $sortDirection";
             break;
         case 'like':
-            $order = " count_post_likes $sort_direction";
+            $order = " count_post_likes $sortDirection";
             break;
         case 'date':
-            $order = " posts.created_at $sort_direction";
+            $order = " posts.created_at $sortDirection";
             break;
     }
 
-    $sql_posts = "SELECT
+    $sqlPosts = "SELECT
         posts.id,
         posts.title,
         types.id AS 'type_id',
@@ -82,16 +82,16 @@ function get_list_posts($connect, $type_id, $sort_type, $sort_direction)
 FROM posts
           INNER JOIN users ON posts.user_id = users.id
           INNER JOIN types ON posts.type_id = types.id
-WHERE $type_id > 0 AND types.id = $type_id OR $type_id = 0 AND types.id >= $type_id
-ORDER BY " . $order . " LIMIT " . quality_popular_posts;
+WHERE $typeId > 0 AND types.id = $typeId OR $typeId = 0 AND types.id >= $typeId
+ORDER BY " . $order . " LIMIT " . QUALITY_POPULAR_POSTS;
 
-    $result_posts = mysqli_query($connect, $sql_posts);
+    $resultPosts = mysqli_query($connect, $sqlPosts);
 
-    if (!$result_posts) {
+    if (!$resultPosts) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
     }
 
-    return mysqli_fetch_all($result_posts, MYSQLI_ASSOC);
+    return mysqli_fetch_all($resultPosts, MYSQLI_ASSOC);
 }
 
 /**
@@ -99,9 +99,13 @@ ORDER BY " . $order . " LIMIT " . quality_popular_posts;
  * @param $connect
  * @param $id -id поста
  * @return array|void
+ * @throws Exception
  */
-function get_post_info($connect, $id)
+function getPost($connect, $id)
 {
+    if (empty($id)) {
+        throw new Exception('Не задан ID поста');
+    }
     $sql_post_info = "SELECT
         posts.id,
         posts.title,
@@ -126,16 +130,20 @@ FROM posts
           INNER JOIN types ON posts.type_id = types.id
 WHERE posts.id = $id";
 
-    $result_post = mysqli_query($connect, $sql_post_info);
+    $resultPost = mysqli_query($connect, $sql_post_info);
 
-    if (!$result_post) {
+    if (!$resultPost) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
     }
 
-    return mysqli_fetch_all($result_post, MYSQLI_ASSOC);
+    if ($post = mysqli_fetch_assoc($resultPost)) {
+        return $post;
+    }
+
+    throw new Exception('Пост не найден');
 }
 
-function get_post_hashtags($connect, $id)
+function getPostHashtags($connect, $id)
 {
     $sql_post_hashtags = "SELECT
         post_hashtags.post_id,
@@ -145,16 +153,16 @@ FROM post_hashtags
         INNER JOIN hashtags ON post_hashtags.hashtag_id = hashtags.id
 WHERE post_hashtags.post_id = $id";
 
-    $result_post = mysqli_query($connect, $sql_post_hashtags);
+    $resultPost = mysqli_query($connect, $sql_post_hashtags);
 
-    if (!$result_post) {
+    if (!$resultPost) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
     }
 
-    return mysqli_fetch_all($result_post, MYSQLI_ASSOC);
+    return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
 
-function get_post_comments($connect, $id, $count_comments)
+function getPostComments($connect, $id, $count_comments)
 {
     $limit = "";
     if ($count_comments != 'all') {
@@ -176,11 +184,11 @@ FROM comments
 WHERE posts.id = $id
 ORDER BY comments.created_at DESC $limit";
 
-    $result_post = mysqli_query($connect, $sql_post_hashtags);
+    $resultPost = mysqli_query($connect, $sql_post_hashtags);
 
-    if (!$result_post) {
+    if (!$resultPost) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
     }
 
-    return mysqli_fetch_all($result_post, MYSQLI_ASSOC);
+    return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }

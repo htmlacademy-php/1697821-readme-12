@@ -1,6 +1,7 @@
 <?php
 /**
  * @var array $posts --массив постов
+ * @var array $pageParams -- массив параметров страницы
  * @var array $types --массив типов постов
  * @var $counter --счетчик
  */
@@ -16,8 +17,8 @@
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link<?= popularAddClass($page_params, 'popular'); ?>"
-                           href="/index.php?<?= getModPageQuery($page_params, ["sort_type" => "popular"], true); ?>">
+                        <a class="sorting__link<?= popularAddClass($pageParams, 'popular'); ?>"
+                           href="/index.php?<?= getModPageQuery($pageParams, ["sort_type" => "popular"], true); ?>">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -25,8 +26,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link<?= popularAddClass($page_params, 'like'); ?>"
-                           href="/index.php?<?= getModPageQuery($page_params, ["sort_type" => "like"], true); ?>">
+                        <a class="sorting__link<?= popularAddClass($pageParams, 'like'); ?>"
+                           href="/index.php?<?= getModPageQuery($pageParams, ["sort_type" => "like"], true); ?>">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -34,8 +35,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link<?= popularAddClass($page_params, 'date'); ?>"
-                           href="/index.php?<?= getModPageQuery($page_params, ["sort_type" => "date"], true); ?>">
+                        <a class="sorting__link<?= popularAddClass($pageParams, 'date'); ?>"
+                           href="/index.php?<?= getModPageQuery($pageParams, ["sort_type" => "date"], true); ?>">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -49,7 +50,7 @@
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
                         <a class="filters__button filters__button--ellipse filters__button--all
-                        <?= $page_params["type_id"] == 0 ? "filters__button--active" : "" ?>"
+                        <?= $pageParams["type_id"] == 0 ? "filters__button--active" : "" ?>"
                            href="/index.php">
                             <span>Все</span>
                         </a>
@@ -57,8 +58,8 @@
                     <?php foreach ($types as $type): ?>
                         <li class="popular__filters-item filters__item">
                             <a class="filters__button filters__button--<?= $type['title'] ?> button
-                            <?= (isset($type['id']) && $page_params["type_id"] == $type['id']) ? "filters__button--active":""?>"
-                               href="/index.php?<?= getModPageQuery($page_params, ["type_id" => $type["id"], "sort_type" => "popular"], false); ?>">
+                            <?= (isset($type['id']) && $pageParams["type_id"] == $type['id']) ? "filters__button--active":""?>"
+                               href="/index.php?<?= getModPageQuery($pageParams, ["type_id" => $type["id"], "sort_type" => "popular"], false); ?>">
                                 <span class="visually-hidden"><?= $type['title'] ?></span>
                                 <svg class="filters__icon" width="22" height="18">
                                     <use xlink:href="#<?= $type['icon_url'] ?>"></use>
@@ -73,7 +74,11 @@
             <?php foreach ($posts as $post): ?>
                 <article class="popular__post post post-<?= $post['type_title'] ?>">
                     <header class="post__header">
-                        <h2><?= htmlspecialchars($post['title'], ENT_QUOTES) ?></h2>
+                        <h2>
+                            <a href="/post.php?id=<?=$post['id']?>">
+                                <?= htmlspecialchars($post['title'], ENT_QUOTES) ?>
+                            </a>
+                        </h2>
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->

@@ -35,7 +35,7 @@ function cropText($text, $count)
  * @param array $data Ассоциативный массив с данными для шаблона
  * @return string Итоговый HTML
  */
-function include_template($name, array $data = [])
+function includeTemplate($name, array $data = [])
 {
     $name = 'templates/' . $name;
     $result = '';
@@ -144,41 +144,41 @@ function getNounPluralForm(int $number, string $one, string $two, string $many)
  * @param string $youtube_url Ссылка на youtube видео
  * @return string
  */
-function embed_youtube_cover($youtube_url)
+function embedYoutubeCover($youtube_url)
 {
-    $res = "";
-    $id = extract_youtube_id($youtube_url);
+    $id = extractYoutubeId($youtube_url);
 
-    if ($id) {
-        $src = sprintf("https://img.youtube.com/vi/%s/mqdefault.jpg", $id);
-        $res = '<img alt="youtube cover" width="320" height="120" src="' . $src . '" />';
+    if ($id === false) {
+        return "";
     }
 
-    return $res;
+    $src = sprintf("https://img.youtube.com/vi/%s/mqdefault.jpg", $id);
+    return '<img alt="youtube cover" width="320" height="120" src="' . $src . '" />';
 }
 
 /**
  * Извлекает из ссылки на youtube видео его уникальный ID
  * @param string $youtube_url Ссылка на youtube видео
- * @return array
+ * @return array|false
  */
-function extract_youtube_id($youtube_url)
+function extractYoutubeId($youtube_url)
 {
-    $id = false;
-
     $parts = parse_url($youtube_url);
 
-    if ($parts) {
-        if ($parts['path'] == '/watch') {
-            parse_str($parts['query'], $vars);
-            $id = $vars['v'] ?? null;
-        } else {
-            if ($parts['host'] == 'youtu.be') {
-                $id = substr($parts['path'], 1);
-            }
-        }
+    if (!$parts) {
+        return false;
     }
-    return $id;
+
+    if ($parts['path'] == '/watch') {
+        parse_str($parts['query'], $vars);
+        return $vars['v'] ?? null;
+    }
+
+    if ($parts['host'] == 'youtu.be') {
+        return substr($parts['path'], 1);
+    }
+
+    return false;
 }
 
 /**
@@ -186,17 +186,15 @@ function extract_youtube_id($youtube_url)
  * @param string $youtube_url Ссылка на youtube видео
  * @return string
  */
-function embed_youtube_video($youtube_url)
+function embedYoutubeVideo($youtube_url)
 {
-    $res = "";
-    $id = extract_youtube_id($youtube_url);
-
-    if ($id) {
-        $src = "https://www.youtube.com/embed/" . $id;
-        $res = '<iframe width="760" height="400" src="' . $src . '" frameborder="0"></iframe>';
+    $id = extractYoutubeId($youtube_url);
+    if ($id === false) {
+        return "";
     }
 
-    return $res;
+    $src = "https://www.youtube.com/embed/" . $id;
+    return '<iframe width="760" height="400" src="' . $src . '" frameborder="0"></iframe>';
 }
 
 /**
@@ -265,10 +263,11 @@ function publicationLife($publishTime)
  * @param $link_url
  * @return mixed
  */
-function get_link_url_title($link_url){
+function getLinkUrlTitle($link_url)
+{
     $url_contents = file_get_contents($link_url);
     preg_match("/<title>(.*)<\/title>/i", $url_contents, $matches);
-    return $matches['1'];
+    return $matches[1] ?? $link_url;
 }
 
 /**
@@ -277,7 +276,7 @@ function get_link_url_title($link_url){
  * @param $sort_type
  * @return string
  */
-function popularAddClass ($page_params, $sort_type)
+function popularAddClass($page_params, $sort_type)
 {
     $popularAddClass = '';
     if (!empty($page_params['sort_type']) && $page_params['sort_type'] == $sort_type) {
@@ -311,7 +310,7 @@ function getPageDefaultParams()
  * если они проходят проверку.
  * @return array
  */
-function popular_params()
+function popularParams()
 {
     $avail_params = getPageDefaultParams();
 
@@ -324,13 +323,13 @@ function popular_params()
         }
     }
     if (!empty($_GET["sort_type"])) {
-        $type_id = filter_input(INPUT_GET,"sort_type", FILTER_SANITIZE_STRING);
+        $type_id = filter_input(INPUT_GET, "sort_type", FILTER_SANITIZE_STRING);
         if (in_array($type_id, $avail_params["sort_type"])) {
             $page_params["sort_type"] = $type_id;
         }
     }
     if (!empty($_GET["sort_direction"])) {
-        $type_id = filter_input(INPUT_GET,"sort_direction", FILTER_SANITIZE_STRING);
+        $type_id = filter_input(INPUT_GET, "sort_direction", FILTER_SANITIZE_STRING);
         if (in_array($type_id, $avail_params["sort_direction"])) {
             $page_params["sort_direction"] = $type_id;
         }
@@ -347,9 +346,9 @@ function popular_params()
  * @param false $reverseSort
  * @return array|mixed
  */
-function mod_page_params($page_params = [], array $mod_params = [], $reverseSort = false)
+function modPageParams($page_params = [], array $mod_params = [], $reverseSort = false)
 {
-    if (!empty($mod_params["sort_type"]) && $page_params["sort_type"] != $mod_params["sort_type"]){
+    if (!empty($mod_params["sort_type"]) && $page_params["sort_type"] != $mod_params["sort_type"]) {
         $reverseSort = false;
         $page_params["sort_direction"] = "desc";
     }
@@ -371,7 +370,19 @@ function mod_page_params($page_params = [], array $mod_params = [], $reverseSort
  * @param false $reverseSort
  * @return string
  */
-function getModPageQuery($page_params = [], array $mod_params = [], $reverseSort = false){
-    $params = mod_page_params($page_params,$mod_params,$reverseSort);
+function getModPageQuery($page_params = [], array $mod_params = [], $reverseSort = false)
+{
+    $params = modPageParams($page_params, $mod_params, $reverseSort);
     return http_build_query($params);
 }
+
+function isShowAllComments(array $post)
+{
+    if (filter_input(INPUT_GET, "comments", FILTER_SANITIZE_STRING) != 'all' &&
+        $post['count_post_comments'] >= COUNT_SHOW_COMMENTS) {
+        return true;
+    }
+    return false;
+}
+
+//function getContentPost($post, $way)
