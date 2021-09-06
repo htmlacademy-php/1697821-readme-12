@@ -1,3 +1,11 @@
+<?php
+/**
+ * @var array $post --массив содержащий данные о посте и создателе поста
+ * @var array $hashtags -- массив хэштегов текущего поста
+ * @var array $comments --массив комментариев текущего поста
+ */
+
+?>
 <main class="page__main page__main--publication">
     <div class="container">
         <h1 class="page__title page__title--publication"><?= $post['title']; ?></h1>

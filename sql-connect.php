@@ -106,7 +106,7 @@ function getPost($connect, $id)
     if (empty($id)) {
         throw new Exception('Не задан ID поста');
     }
-    $sql_post_info = "SELECT
+    $sqlPostInfo = "SELECT
         posts.id,
         posts.title,
         types.id AS 'type_id',
@@ -130,7 +130,7 @@ FROM posts
           INNER JOIN types ON posts.type_id = types.id
 WHERE posts.id = $id";
 
-    $resultPost = mysqli_query($connect, $sql_post_info);
+    $resultPost = mysqli_query($connect, $sqlPostInfo);
 
     if (!$resultPost) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
@@ -145,7 +145,7 @@ WHERE posts.id = $id";
 
 function getPostHashtags($connect, $id)
 {
-    $sql_post_hashtags = "SELECT
+    $sqlPostHashtags = "SELECT
         post_hashtags.post_id,
         post_hashtags.hashtag_id,
         hashtags.title AS 'hashtag_title'
@@ -153,7 +153,7 @@ FROM post_hashtags
         INNER JOIN hashtags ON post_hashtags.hashtag_id = hashtags.id
 WHERE post_hashtags.post_id = $id";
 
-    $resultPost = mysqli_query($connect, $sql_post_hashtags);
+    $resultPost = mysqli_query($connect, $sqlPostHashtags);
 
     if (!$resultPost) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
@@ -162,14 +162,14 @@ WHERE post_hashtags.post_id = $id";
     return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
 
-function getPostComments($connect, $id, $count_comments)
+function getPostComments($connect, $id, $countComments)
 {
     $limit = "";
-    if ($count_comments != 'all') {
-        $limit = "LIMIT $count_comments";
+    if ($countComments != 'all') {
+        $limit = "LIMIT $countComments";
     }
 
-    $sql_post_hashtags = "SELECT 
+    $sqlPostHashtags = "SELECT
         comments.id,
         comments.content,
         comments.created_at,
@@ -184,7 +184,7 @@ FROM comments
 WHERE posts.id = $id
 ORDER BY comments.created_at DESC $limit";
 
-    $resultPost = mysqli_query($connect, $sql_post_hashtags);
+    $resultPost = mysqli_query($connect, $sqlPostHashtags);
 
     if (!$resultPost) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
