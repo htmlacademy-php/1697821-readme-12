@@ -20,7 +20,7 @@ $pageContent = includeTemplate(
         'types' => $typesList,
         'posts' => $postsList,
         'counter' => $counter,
-        'page_params' => $pageParams
+        'pageParams' => $pageParams
     ]
 );
 
@@ -28,7 +28,7 @@ $layoutContent = includeTemplate(
     'layout.php',
     [
         'mainContainer' => $pageContent,
-        'is_auth' => $isAuth,
+        'isAuth' => $isAuth,
         'title' => $title
     ]
 );
