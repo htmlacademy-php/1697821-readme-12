@@ -3,7 +3,7 @@
     <div class="post__main">
         <blockquote>
             <p>
-                <?= htmlspecialchars($post['content'], ENT_QUOTES) ?>
+                <?= htmlValidate($post['content']) ?>
             </p>
             <cite>
                 <?= $post['author_quote'] ?? "Неизвестный Автор"; ?>

@@ -75,8 +75,8 @@
                 <article class="popular__post post post-<?= $post['type_title'] ?>">
                     <header class="post__header">
                         <h2>
-                            <a href="/post.php?id=<?=$post['id']?>">
-                                <?= htmlspecialchars($post['title'], ENT_QUOTES) ?>
+                            <a href="/post.php?id=<?= $post['id'] ?>">
+                                <?= htmlValidate($post['title']) ?>
                             </a>
                         </h2>
                     </header>
@@ -105,7 +105,7 @@
                                 <div class="post__avatar-wrapper">
                                     <!--укажите путь к файлу аватара-->
                                     <img class="post__author-avatar"
-                                         src="img/<?= htmlspecialchars($post['user_avatar_url'], ENT_QUOTES) ?>"
+                                         src="img/<?= htmlValidate($post['user_avatar_url']) ?>"
                                          alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">

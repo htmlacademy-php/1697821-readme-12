@@ -18,10 +18,7 @@ function cropText($text, $count)
             if ($i < $count) {
                 $line .= "$piece ";
             } else {
-                return htmlspecialchars(
-                        $line,
-                        ENT_QUOTES
-                    ) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
+                return htmlValidate($line) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
             }
         }
     } else {
@@ -376,6 +373,11 @@ function getModPageQuery($page_params = [], array $mod_params = [], $reverseSort
     return http_build_query($params);
 }
 
+/**
+ * Функция для проверки кол-ва отображаемых комментариев
+ * @param array $post
+ * @return bool
+ */
 function isShowAllComments(array $post)
 {
     if (filter_input(INPUT_GET, "comments", FILTER_SANITIZE_STRING) != 'all' &&
@@ -385,4 +387,12 @@ function isShowAllComments(array $post)
     return false;
 }
 
-//function getContentPost($post, $way)
+/**
+ * Convert all applicable characters to HTML entities.
+ * @param $text -The string being converted.
+ * @return string The converted string.
+ */
+function htmlValidate($text)
+{
+    return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}

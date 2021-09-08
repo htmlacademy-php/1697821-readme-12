@@ -1,6 +1,6 @@
 <!--содержимое для поста-цитаты-->
 <blockquote>
-    <p><?= htmlspecialchars($post['content'], ENT_QUOTES) ?></p>
+    <p><?= htmlValidate($post['content']) ?></p>
     <cite>
         <?= $post['author_quote'] ?? "Неизвестный Автор"; ?>
     </cite>
