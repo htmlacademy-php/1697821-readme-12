@@ -16,19 +16,19 @@
                     <!--здесь содержимое карточки-->
                     <?php switch ($post['type_title']):
                         case 'quote':
-                            include("templates/detail-posts/quote-post.php");
+                            print(includeTemplate("detail-posts/quote-post.php", ['post' => $post]));
                             break;
                         case 'text':
-                            include("templates/detail-posts/text-post.php");
+                            print(includeTemplate("detail-posts/text-post.php", ['post' => $post]));
                             break;
                         case 'photo':
-                            include("templates/detail-posts/photo-post.php");
+                            print(includeTemplate("detail-posts/photo-post.php", ['post' => $post]));
                             break;
                         case 'link':
-                            include("templates/detail-posts/link-post.php");
+                            print(includeTemplate("detail-posts/link-post.php", ['post' => $post]));
                             break;
                         case 'video':
-                            include("templates/detail-posts/video-post.php");
+                            print(includeTemplate("detail-posts/video-post.php", ['post' => $post]));
                     endswitch ?>
                     <div class="post__indicators">
                         <div class="post__buttons">

@@ -84,19 +84,19 @@
                         <!--здесь содержимое карточки-->
                         <?php switch ($post['type_title']):
                             case 'quote':
-                                include("templates/forms-posts/quote-post.php");
+                                print(includeTemplate("forms-posts/quote-post.php", ['post' => $post]));
                                 break;
                             case 'text':
-                                include("templates/forms-posts/text-post.php");
+                                print(includeTemplate("forms-posts/text-post.php", ['post' => $post]));
                                 break;
                             case 'photo':
-                                include("templates/forms-posts/photo-post.php");
+                                print(includeTemplate("forms-posts/photo-post.php", ['post' => $post]));
                                 break;
                             case 'link':
-                                include("templates/forms-posts/link-post.php");
+                                print(includeTemplate("forms-posts/link-post.php", ['post' => $post]));
                                 break;
                             case 'video':
-                                include("templates/forms-posts/video-post.php");
+                                print(includeTemplate("forms-posts/video-post.php", ['post' => $post]));
                         endswitch ?>
                     </div>
                     <footer class="post__footer">
