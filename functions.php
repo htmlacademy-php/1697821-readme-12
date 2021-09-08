@@ -18,10 +18,7 @@ function cropText($text, $count)
             if ($i < $count) {
                 $line .= "$piece ";
             } else {
-                return htmlspecialchars(
-                        $line,
-                        ENT_QUOTES
-                    ) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
+                return htmlValidate($line) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
             }
         }
     } else {
@@ -35,7 +32,7 @@ function cropText($text, $count)
  * @param array $data Ассоциативный массив с данными для шаблона
  * @return string Итоговый HTML
  */
-function include_template($name, array $data = [])
+function includeTemplate($name, array $data = [])
 {
     $name = 'templates/' . $name;
     $result = '';
@@ -140,6 +137,64 @@ function getNounPluralForm(int $number, string $one, string $two, string $many)
 }
 
 /**
+ * Возвращает img-тег с обложкой видео для вставки на страницу
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return string
+ */
+function embedYoutubeCover($youtube_url)
+{
+    $id = extractYoutubeId($youtube_url);
+
+    if ($id === false) {
+        return "";
+    }
+
+    $src = sprintf("https://img.youtube.com/vi/%s/mqdefault.jpg", $id);
+    return '<img alt="youtube cover" width="320" height="120" src="' . $src . '" />';
+}
+
+/**
+ * Извлекает из ссылки на youtube видео его уникальный ID
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return array|false
+ */
+function extractYoutubeId($youtube_url)
+{
+    $parts = parse_url($youtube_url);
+
+    if (!$parts) {
+        return false;
+    }
+
+    if ($parts['path'] == '/watch') {
+        parse_str($parts['query'], $vars);
+        return $vars['v'] ?? null;
+    }
+
+    if ($parts['host'] == 'youtu.be') {
+        return substr($parts['path'], 1);
+    }
+
+    return false;
+}
+
+/**
+ * Возвращает код iframe для вставки youtube видео на страницу
+ * @param string $youtube_url Ссылка на youtube видео
+ * @return string
+ */
+function embedYoutubeVideo($youtube_url)
+{
+    $id = extractYoutubeId($youtube_url);
+    if ($id === false) {
+        return "";
+    }
+
+    $src = "https://www.youtube.com/embed/" . $id;
+    return '<iframe width="760" height="400" src="' . $src . '" frameborder="0"></iframe>';
+}
+
+/**
  * Функция для подсчета времени, прошедшего с момента публикации
  * @param $publishTime - время публикации
  * @return string - сколько прошло времени с момента публикации
@@ -198,4 +253,146 @@ function publicationLife($publishTime)
         default:
             return "Время";
     }
+}
+
+/**
+ * Функция для вытаскивания заголовка с вебсайта
+ * @param $link_url
+ * @return mixed
+ */
+function getLinkUrlTitle($link_url)
+{
+    $url_contents = file_get_contents($link_url);
+    preg_match("/<title>(.*)<\/title>/i", $url_contents, $matches);
+    return $matches[1] ?? $link_url;
+}
+
+/**
+ * Функция для добавления классов в виды сортировок
+ * @param $page_params
+ * @param $sort_type
+ * @return string
+ */
+function popularAddClass($page_params, $sort_type)
+{
+    $popularAddClass = '';
+    if (!empty($page_params['sort_type']) && $page_params['sort_type'] == $sort_type) {
+        $popularAddClass .= " sorting__link--active";
+    }
+    if ($page_params['sort_direction'] == 'asc') {
+        $popularAddClass .= " sorting__link--reverse";
+    }
+    return $popularAddClass;
+}
+
+/**
+ * Массив для проверки данных сортировки
+ * @return array
+ */
+function getPageDefaultParams()
+{
+    return [
+        "type_id" => [0, 1, 2, 3, 4, 5],
+        "sort_type" => ["popular", "like", "date"],
+        "sort_direction" => ["asc", "desc"]
+    ];
+}
+
+
+/**
+ * Функция задает параметры страницы Популярное
+ * Вначале задаются дефолтные параметры страницы
+ * Если есть параметры, полученные из GET запроса,
+ * то перезаписывает этот параметр в массиве page_params,
+ * если они проходят проверку.
+ * @return array
+ */
+function popularParams()
+{
+    $avail_params = getPageDefaultParams();
+
+    $page_params = ["type_id" => 0, "sort_type" => "popular", "sort_direction" => "desc"];
+
+    if (!empty($_GET["type_id"])) {
+        $type_id = filter_input(INPUT_GET, "type_id", FILTER_SANITIZE_NUMBER_INT);
+        if (in_array($type_id, $avail_params["type_id"])) {
+            $page_params["type_id"] = $type_id;
+        }
+    }
+    if (!empty($_GET["sort_type"])) {
+        $type_id = filter_input(INPUT_GET, "sort_type", FILTER_SANITIZE_STRING);
+        if (in_array($type_id, $avail_params["sort_type"])) {
+            $page_params["sort_type"] = $type_id;
+        }
+    }
+    if (!empty($_GET["sort_direction"])) {
+        $type_id = filter_input(INPUT_GET, "sort_direction", FILTER_SANITIZE_STRING);
+        if (in_array($type_id, $avail_params["sort_direction"])) {
+            $page_params["sort_direction"] = $type_id;
+        }
+    }
+    return $page_params;
+}
+
+/**
+ * Функция для генерации параметров ссылок сортировки
+ * На вход подается массив текущих параметров и массив параметров для ссылки
+ * На выходе мы получаем обновленный массив параметров
+ * @param array $page_params
+ * @param array $mod_params
+ * @param false $reverseSort
+ * @return array|mixed
+ */
+function modPageParams($page_params = [], array $mod_params = [], $reverseSort = false)
+{
+    if (!empty($mod_params["sort_type"]) && $page_params["sort_type"] != $mod_params["sort_type"]) {
+        $reverseSort = false;
+        $page_params["sort_direction"] = "desc";
+    }
+
+    if ($reverseSort) {
+        $page_params['sort_direction'] = ($page_params['sort_direction'] == 'asc') ? 'desc' : 'asc';
+    }
+
+    foreach ($mod_params as $mod => $value) {
+        $page_params[$mod] = $value;
+    }
+    return $page_params;
+}
+
+/**
+ * Функция гля генерации ссылки сортировки
+ * @param array $page_params
+ * @param array $mod_params
+ * @param false $reverseSort
+ * @return string
+ */
+function getModPageQuery($page_params = [], array $mod_params = [], $reverseSort = false)
+{
+    $params = modPageParams($page_params, $mod_params, $reverseSort);
+    return http_build_query($params);
+}
+
+/**
+ * Функция для проверки кол-ва отображаемых комментариев
+ * @param array $post
+ * @return bool
+ */
+function isShowAllComments(array $post)
+{
+    if (filter_input(INPUT_GET, "comments", FILTER_SANITIZE_STRING) != 'all' &&
+        $post['count_post_comments'] >= COUNT_SHOW_COMMENTS) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Convert all applicable characters to HTML entities.
+ * @param $text -The string being converted.
+ * @return string The converted string.
+ */
+function htmlValidate($text)
+{
+    return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }

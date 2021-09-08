@@ -157,7 +157,7 @@ function include_template($name, array $data = [])
  */
 function check_youtube_url($url)
 {
-    $id = extract_youtube_id($url);
+    $id = extractYoutubeId($url);
 
     set_error_handler(function () {
     }, E_WARNING);
@@ -185,7 +185,7 @@ function check_youtube_url($url)
 function embed_youtube_video($youtube_url)
 {
     $res = "";
-    $id = extract_youtube_id($youtube_url);
+    $id = extractYoutubeId($youtube_url);
 
     if ($id) {
         $src = "https://www.youtube.com/embed/" . $id;
@@ -203,7 +203,7 @@ function embed_youtube_video($youtube_url)
 function embed_youtube_cover($youtube_url)
 {
     $res = "";
-    $id = extract_youtube_id($youtube_url);
+    $id = extractYoutubeId($youtube_url);
 
     if ($id) {
         $src = sprintf("https://img.youtube.com/vi/%s/mqdefault.jpg", $id);

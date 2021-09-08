@@ -1,13 +1,7 @@
 <!--содержимое для поста-цитаты-->
 <blockquote>
-    <p><?= htmlspecialchars($post['content'], ENT_QUOTES) ?></p>
+    <p><?= htmlValidate($post['content']) ?></p>
     <cite>
-        <?php
-        if (!isset($post['author_quote'])) {
-            echo "Неизвестный Автор";
-        } else {
-            echo $post['author_quote'];
-        }
-        ?>
+        <?= $post['author_quote'] ?? "Неизвестный Автор"; ?>
     </cite>
 </blockquote>
