@@ -396,3 +396,125 @@ function htmlValidate($text)
 {
     return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
+
+function validateHeading($value)
+{
+    $len = strlen(trim($_POST[$value]));
+
+    if (empty(trim($_POST[$value]))) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if ($len < 5 or $len > 50) {
+        return "Значение должно быть от 5 до 50 символов";
+    }
+}
+
+function validateQuote($value)
+{
+    $len = strlen(trim($_POST[$value]));
+
+    if (empty(trim($_POST[$value]))) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if ($len < 5 or $len > 70) {
+        return "Значение должно быть от 5 до 50 символов";
+    }
+}
+
+function validateQuoteAuthor($value)
+{
+    $len = strlen($_POST[$value]);
+
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if ($len < 2 or $len > 30) {
+        return "Значение должно быть от 2 до 30 символов";
+    }
+}
+
+function validatePostText($value)
+{
+    $len = strlen($_POST[$value]);
+
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if ($len < 2 or $len > 150) {
+        return "Значение должно быть от 2 до 150 символов";
+    }
+}
+
+function validatePhoto($value)
+{
+    if ($_FILES[$value] && $_FILES[$value]['error'] !== 4) {
+        $fileType = $_FILES[$value]['type'];
+        $validImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+
+        if (!in_array($fileType, $validImageTypes)) {
+            return 'Неверный формат загружаемого файла. Допустимый формат: ' . implode(' , ', $validImageTypes);
+        }
+    }
+}
+
+function validateHashtag($value)
+{
+    if (!empty($_POST[$value])) {
+        $hashtags = explode(' ', $_POST[$value]);
+
+        foreach ($hashtags as $hashtag) {
+            if (substr($hashtag, 0, 1) !== '#') {
+                return 'Хэштег должен начинаться со знака решетки';
+            }
+            if (strrpos($hashtag, '#') > 0) {
+                return 'Хэш-теги разделяются пробелами';
+            }
+            if (strlen($hashtag) < 2) {
+                return 'Хэш-тег не может состоять только из знака решетки';
+            }
+        }
+    }
+}
+
+function uploadPhoto($value)
+{
+    if (isset($_FILES[$value])) {
+        $file_name = $_FILES[$value]['name'];
+        $file_path = __DIR__ . '/uploads/';
+        //$file_url = '/uploads/' . $file_name;
+
+        move_uploaded_file($_FILES[$value]['tmp_name'], $file_path . $file_name);
+    }
+}
+
+
+function isRusNameTypes($type)
+{
+    switch ($type) {
+        case 'quote':
+            return "цитаты";
+        case 'text':
+            return "текста";
+        case 'photo':
+            return "фото";
+        case 'link':
+            return "ссылки";
+        case 'video':
+            return "видео";
+    }
+}
+
+function getPostVal($name)
+{
+    return $_POST[$name] ?? "";
+}
+
+function isErrorCss($errorField)
+{
+    $classname = isset($errorField) ? "form__input-section--error" : "";
+    return $classname;
+}
