@@ -10,12 +10,11 @@ require_once 'bootstrap.php';
 
 $connect = dbConnection();
 $types = getContentTypes($connect);
-$typeId = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
-if (!isset($typeId)) {
-    $typeId = 1;
+$currentType = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING);
+if (!isset($currentType)){
+    $currentType = 'text';
 }
 
-$currentType = $types[array_search($typeId, array_column($types, 'id'))]['title'];
 
 
 $error_field_titles = [
@@ -112,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             INPUT_POST,
             [
                 "heading" => FILTER_SANITIZE_STRING,
-                "userpic-file-photo",
+                "userpic-file-photo" => FILTER_DEFAULT,
                 "photo-url" => FILTER_SANITIZE_STRING,
                 "photo-tags" => FILTER_SANITIZE_STRING
             ],
@@ -120,9 +119,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         )
     ];
 
-    foreach ($fields['text'] as $key => $value) {
-        if (isset($validate['text'][$key])) {
-            $rule = $validate['text'][$key];
+    foreach ($fields[$currentType] as $key => $value) {
+        if (isset($validate[$currentType][$key])) {
+            $rule = $validate[$currentType][$key];
             $errors[$key] = $rule($value);
         }
     }
@@ -130,16 +129,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 var_dump($errors);
 
-
-$addPosts = getAddPost($connect, $typeId);
+$addPostContent = includeTemplate(
+    "add-posts/" . $currentType . "-post.php",
+    [
+        'errors' => $errors
+    ]
+);
 
 $pageContent = includeTemplate(
     'add-post.php',
     [
-        'addPosts' => $addPosts,
+        'addPostContent' =>$addPostContent,
         'types' => $types,
-        'typeId' => $typeId,
-        'errors' => $errors
+        'errors' => $errors,
+        'currentType' => $currentType
     ]
 );
 

@@ -192,21 +192,3 @@ ORDER BY comments.created_at DESC $limit";
 
     return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
-
-function getAddPost($connect, $id)
-{
-    $sql_get_user_data = "SELECT
-        types.id,
-        types.title,
-        types.icon_url
-FROM types
-WHERE types.id = $id";
-
-    $result_post = mysqli_query($connect, $sql_get_user_data);
-
-    if (!$result_post) {
-        exit('Ошибка запроса: ' . mysqli_error($connect));
-    }
-
-    return mysqli_fetch_all($result_post, MYSQLI_ASSOC);
-}
