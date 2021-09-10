@@ -38,6 +38,3 @@
         </div>
     </div>
 </div>
-</div>
-<? include('./templates/add-posts/invalid-block.php') ?>
-</div>

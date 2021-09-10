@@ -461,6 +461,45 @@ function validatePhoto($value)
     }
 }
 
+function validateUrl($value)
+{
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) == false) {
+        return "Была введена неправильная ссылка";
+    }
+}
+
+function validateVideo($value)
+{
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) == false) {
+        return "Была введена неправильная ссылка";
+    }
+
+
+    set_error_handler(function () {
+    });
+    $url = "https://www.youtube.com/oembed?url=" . $_POST[$value];
+    $fop = fopen($url, "rb");
+    if (!$fop && $fop == false) {
+        return "Данное видео не найдено";
+    };
+    restore_error_handler();
+}
+
+function validatePhotoUrl($value)
+{
+    if ($len < 2 or $len > 150) {
+        return "Значение должно быть от 2 до 150 символов";
+    }
+}
+
 function validateHashtag($value)
 {
     if (!empty($_POST[$value])) {
@@ -510,7 +549,7 @@ function isRusNameTypes($type)
 
 function getPostVal($name)
 {
-    return $_POST[$name] ?? "";
+    return !empty($_POST) && !empty($_POST[$name]) ? htmlValidate($_POST[$name]) : '';
 }
 
 function isErrorCss($errorField)

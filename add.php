@@ -11,10 +11,9 @@ require_once 'bootstrap.php';
 $connect = dbConnection();
 $types = getContentTypes($connect);
 $currentType = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING);
-if (!isset($currentType)){
+if (!isset($currentType)) {
     $currentType = 'text';
 }
-
 
 
 $error_field_titles = [
@@ -32,15 +31,6 @@ $error_field_titles = [
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    /*    $required = [
-            'quote' => ["heading", "quote-text", "quote-author"],
-            'text' => ["heading", "post-text"],
-            'photo' => ["heading", "userpic-file-photo"],
-            'video' => ["heading", "video-url"],
-            'link' => ["heading", "post-link"]
-        ];*/
-
-
     $validate = [
         'quote' => [
             "heading" => function () {
@@ -81,65 +71,74 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 return validatePhoto("userpic-file-photo");
             },
 
+            "photo-url" => function () {
+                return validatePhotoUrl("photo-url");
+            },
+
             "post-tags" => function () {
-                return validateHashtag("post-tags");
+                return validateHashtag("photo-tags");
+            }
+        ],
+        'video' => [
+            "heading" => function () {
+                return validateHeading("heading");
+            },
+
+            "video-url" => function () {
+                return validateVideo("video-url");
+            },
+
+            "post-tags" => function () {
+                return validateHashtag("video-tags");
+            }
+        ],
+        'link' => [
+            "heading" => function () {
+                return validateHeading("heading");
+            },
+
+            "post-link" => function () {
+                return validateUrl("post-link");
+            },
+
+            "link-tags" => function () {
+                return validateHashtag("link-tags");
             }
         ]
     ];
 
-    $fields = [
-        "text" => filter_input_array(
-            INPUT_POST,
-            [
-                "heading" => FILTER_SANITIZE_STRING,
-                "post-text" => FILTER_SANITIZE_STRING,
-                "post-tags" => FILTER_SANITIZE_STRING
-            ],
-            true
-        ),
-        "quote" => filter_input_array(
-            INPUT_POST,
-            [
-                "heading" => FILTER_SANITIZE_STRING,
-                "quote-text" => FILTER_SANITIZE_STRING,
-                "quote-author" => FILTER_SANITIZE_STRING,
-                "quote-tags" => FILTER_SANITIZE_STRING
-            ],
-            true
-        ),
-        "photo" => filter_input_array(
-            INPUT_POST,
-            [
-                "heading" => FILTER_SANITIZE_STRING,
-                "userpic-file-photo" => FILTER_DEFAULT,
-                "photo-url" => FILTER_SANITIZE_STRING,
-                "photo-tags" => FILTER_SANITIZE_STRING
-            ],
-            true
-        )
-    ];
 
-    foreach ($fields[$currentType] as $key => $value) {
+    foreach ($validate[$currentType] as $key => $value) {
         if (isset($validate[$currentType][$key])) {
             $rule = $validate[$currentType][$key];
             $errors[$key] = $rule($value);
         }
     }
 }
-
 var_dump($errors);
 
 $addPostContent = includeTemplate(
     "add-posts/" . $currentType . "-post.php",
     [
+        'currentType' => $currentType,
         'errors' => $errors
+    ]
+);
+
+$addFormPost = includeTemplate(
+    "add-posts/form-post.php",
+    [
+        "errors" => $errors,
+        "addPostContent" => $addPostContent,
+        "types" => $types,
+        "currentType" => $currentType
     ]
 );
 
 $pageContent = includeTemplate(
     'add-post.php',
     [
-        'addPostContent' =>$addPostContent,
+        'addFormPost' => $addFormPost,
         'types' => $types,
         'errors' => $errors,
         'currentType' => $currentType

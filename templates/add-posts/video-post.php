@@ -5,7 +5,7 @@
     </label>
     <div class="form__input-section">
         <input class="adding-post__input form__input" id="video-url" type="text" name="video-url"
-               placeholder="Введите ссылку">
+               placeholder="Введите ссылку" value="<?= getPostVal('video-url') ?>">
         <button class="form__error-button button" type="button">!<span
                     class="visually-hidden">Информация об ошибке</span>
         </button>
@@ -19,7 +19,7 @@
     <label class="adding-post__label form__label" for="video-tags">Теги</label>
     <div class="form__input-section">
         <input class="adding-post__input form__input" id="video-tags" type="text" name="video-tags"
-               placeholder="Введите ссылку">
+               placeholder="Введите ссылку" value="<?= getPostVal('video-tags') ?>">
         <button class="form__error-button button" type="button">!<span
                     class="visually-hidden">Информация об ошибке</span>
         </button>
@@ -28,7 +28,4 @@
             <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
         </div>
     </div>
-</div>
-</div>
-<? include('./templates/add-posts/invalid-block.php') ?>
 </div>
