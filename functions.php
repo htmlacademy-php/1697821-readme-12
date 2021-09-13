@@ -1,6 +1,63 @@
 <?php
 
 /**
+ * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param array $data Данные для вставки на место плейсхолдеров
+ *
+ * @return mysqli_stmt Подготовленное выражение
+ */
+function dbGetPrepareStmt($link, $sql, $data = [])
+{
+    $stmt = mysqli_prepare($link, $sql);
+
+    if ($stmt === false) {
+        $errorMsg = 'Не удалось инициализировать подготовленное выражение: ' . mysqli_error($link);
+        die($errorMsg);
+    }
+
+    if ($data) {
+        $types = '';
+        $stmt_data = [];
+
+        foreach ($data as $value) {
+            $type = 's';
+
+            if (is_int($value)) {
+                $type = 'i';
+            } else {
+                if (is_string($value)) {
+                    $type = 's';
+                } else {
+                    if (is_double($value)) {
+                        $type = 'd';
+                    }
+                }
+            }
+
+            if ($type) {
+                $types .= $type;
+                $stmt_data[] = $value;
+            }
+        }
+
+        $values = array_merge([$stmt, $types], $stmt_data);
+
+        $func = 'mysqli_stmt_bind_param';
+        $func(...$values);
+
+        if (mysqli_errno($link) > 0) {
+            $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($link);
+            die($errorMsg);
+        }
+    }
+
+    return $stmt;
+}
+
+/**
  * Функция для обрезания текста, если он превышает заданную длину
  * @param string $text Входящий текст
  * @param int $count Кол-во символов до обрезания
@@ -449,16 +506,32 @@ function validatePostText($value)
     }
 }
 
-function validatePhoto($value)
+function saveImage($name)
 {
-    if ($_FILES[$value] && $_FILES[$value]['error'] !== 4) {
-        $fileType = $_FILES[$value]['type'];
-        $validImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
-
-        if (!in_array($fileType, $validImageTypes)) {
-            return 'Неверный формат загружаемого файла. Допустимый формат: ' . implode(' , ', $validImageTypes);
-        }
+    if ($_FILES[$name]['error'] !== 0) {
+        return false;
     }
+
+    $file_name = $_FILES[$name]['name'];
+    $file_path = __DIR__ . '/uploads/';
+    move_uploaded_file($_FILES[$name]['tmp_name'], $file_path . $file_name);
+    return '/uploads/' . $file_name;
+}
+
+;
+
+function uploadImage($fileName, $fileUrl)
+{
+    if (isset($_FILES[$fileName]) && $_FILES[$fileName]['error'] !== 4) {
+        return saveImage($fileName);
+    }
+
+    $image_content = file_get_contents($_POST[$fileUrl]);
+    $file_name = basename($_POST[$fileUrl]);
+    $file_path = __DIR__ . '/uploads/';
+    file_put_contents($file_path . $file_name, $image_content);
+
+    return '/uploads/' . $file_name;
 }
 
 function validateUrl($value)
@@ -467,7 +540,7 @@ function validateUrl($value)
         return "Это поле должно быть заполнено";
     }
 
-    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) == false) {
+    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) === false) {
         return "Была введена неправильная ссылка";
     }
 }
@@ -478,7 +551,7 @@ function validateVideo($value)
         return "Это поле должно быть заполнено";
     }
 
-    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) == false) {
+    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) === false) {
         return "Была введена неправильная ссылка";
     }
 
@@ -493,10 +566,45 @@ function validateVideo($value)
     restore_error_handler();
 }
 
-function validatePhotoUrl($value)
+function validateImageUrl($value)
 {
-    if ($len < 2 or $len > 150) {
-        return "Значение должно быть от 2 до 150 символов";
+    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) === false && !empty($_POST[$value])) {
+        return "Была введена неправильная ссылка";
+    }
+
+    $validImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+
+    if (empty($_POST[$value]) && (empty($_FILES['userpic-file-photo']) || $_FILES['userpic-file-photo']['error'] === 4)) {
+        return 'Вы должны загрузить фото, либо прикрепить ссылку из интернета';
+    }
+
+    if (!empty($_POST[$value])) {
+        $tmp = explode('.', $_POST[$value]);
+        $type = 'image/' . end($tmp);
+
+        if (!in_array($type, $validImageTypes)) {
+            return 'Неверный формат загружаемого файла.';
+        }
+
+        if (file_get_contents($_POST[$value]) === false) {
+            return 'Не удалось найти изображение. Проверьте ссылку.';
+        }
+    }
+}
+
+function validateImage($value)
+{
+    if ($_FILES[$value] && $_FILES[$value]['error'] !== 4) {
+        $fileType = $_FILES[$value]['type'];
+
+        $validImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+
+        if (!in_array($fileType, $validImageTypes)) {
+            return $fileType . 'Неверный формат загружаемого файла. Допустимый формат: ' . implode(
+                    ' , ',
+                    $validImageTypes
+                );
+        }
     }
 }
 
@@ -518,18 +626,6 @@ function validateHashtag($value)
         }
     }
 }
-
-function uploadPhoto($value)
-{
-    if (isset($_FILES[$value])) {
-        $file_name = $_FILES[$value]['name'];
-        $file_path = __DIR__ . '/uploads/';
-        //$file_url = '/uploads/' . $file_name;
-
-        move_uploaded_file($_FILES[$value]['tmp_name'], $file_path . $file_name);
-    }
-}
-
 
 function isRusNameTypes($type)
 {

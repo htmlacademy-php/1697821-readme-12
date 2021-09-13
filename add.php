@@ -16,106 +16,121 @@ if (!isset($currentType)) {
 }
 
 
-$error_field_titles = [
-    'post-heading' => 'Заголовок',
+$errorFieldTitles = [
+    'heading' => 'Заголовок',
     'post-tags' => 'Теги',
     'photo-url' => 'Ссылка из интернета',
-    'userpic-file-photo' => 'Файл',
+    'userpic-file-photo' => 'Изображение',
     'video-url' => 'Ссылка Youtube',
     'post-text' => 'Текст поста',
-    'cite-text' => 'Текст цитаты',
+    'quote-text' => 'Текст цитаты',
     'quote-author' => 'Автор цитаты',
     'post-link' => 'Ссылка'
 ];
 
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $validate = [
-        'quote' => [
-            "heading" => function () {
-                return validateHeading("heading");
-            },
+$validate = [
+    'quote' => [
+        "heading" => function () {
+            return validateHeading("heading");
+        },
 
-            "quote-text" => function () {
-                return validateQuote("quote-text");
-            },
+        "quote-text" => function () {
+            return validateQuote("quote-text");
+        },
 
-            "quote-author" => function () {
-                return validateQuoteAuthor("quote-author");
-            },
+        "quote-author" => function () {
+            return validateQuoteAuthor("quote-author");
+        },
 
-            "post-tags" => function () {
-                return validateHashtag("post-tags");
-            }
-        ],
-        'text' => [
-            "heading" => function () {
-                return validateHeading("heading");
-            },
+        "post-tags" => function () {
+            return validateHashtag("post-tags");
+        }
+    ],
+    'text' => [
+        "heading" => function () {
+            return validateHeading("heading");
+        },
 
-            "post-text" => function () {
-                return validatePostText("post-text");
-            },
+        "post-text" => function () {
+            return validatePostText("post-text");
+        },
 
-            "post-tags" => function () {
-                return validateHashtag("post-tags");
-            }
-        ],
-        'photo' => [
-            "heading" => function () {
-                return validateHeading("heading");
-            },
+        "post-tags" => function () {
+            return validateHashtag("post-tags");
+        }
+    ],
+    'photo' => [
+        "heading" => function () {
+            return validateHeading("heading");
+        },
 
-            "userpic-file-photo" => function () {
-                return validatePhoto("userpic-file-photo");
-            },
+        "userpic-file-photo" => function () {
+            return validateImage("userpic-file-photo");
+        },
 
-            "photo-url" => function () {
-                return validatePhotoUrl("photo-url");
-            },
+        "photo-url" => function () {
+            return validateImageUrl("photo-url");
+        },
 
-            "post-tags" => function () {
-                return validateHashtag("photo-tags");
-            }
-        ],
-        'video' => [
-            "heading" => function () {
-                return validateHeading("heading");
-            },
+        "post-tags" => function () {
+            return validateHashtag("photo-tags");
+        }
+    ],
+    'video' => [
+        "heading" => function () {
+            return validateHeading("heading");
+        },
 
-            "video-url" => function () {
-                return validateVideo("video-url");
-            },
+        "video-url" => function () {
+            return validateVideo("video-url");
+        },
 
-            "post-tags" => function () {
-                return validateHashtag("video-tags");
-            }
-        ],
-        'link' => [
-            "heading" => function () {
-                return validateHeading("heading");
-            },
+        "post-tags" => function () {
+            return validateHashtag("video-tags");
+        }
+    ],
+    'link' => [
+        "heading" => function () {
+            return validateHeading("heading");
+        },
 
-            "post-link" => function () {
-                return validateUrl("post-link");
-            },
+        "post-link" => function () {
+            return validateUrl("post-link");
+        },
 
-            "link-tags" => function () {
-                return validateHashtag("link-tags");
-            }
-        ]
-    ];
+        "link-tags" => function () {
+            return validateHashtag("link-tags");
+        }
+    ]
+];
 
-
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($validate[$currentType] as $key => $value) {
-        if (isset($validate[$currentType][$key])) {
+        if (!empty($validate[$currentType][$key])) {
             $rule = $validate[$currentType][$key];
             $errors[$key] = $rule($value);
         }
     }
+
+    if (!array_filter($errors)) {
+        $fileUrl = null;
+        if ($currentType === 'photo') {
+            $fileUrl = uploadImage('userpic-file-photo', 'photo-url');
+        }
+
+        $postTypeId = $types[array_search($currentType, array_column($types, 'title'))]['id'];
+        $post_id = savePost($connect, $_POST, $postTypeId, $currentType, $fileUrl);
+
+        if (isset($_POST['post-tags'])) {
+            save_tags($connect, $_POST['post-tags'], $post_id);
+        }
+
+        $URL = '/post.php?id=' . $post_id;
+        header("Location: $URL");
+    }
 }
-var_dump($errors);
 
 $addPostContent = includeTemplate(
     "add-posts/" . $currentType . "-post.php",
@@ -131,7 +146,8 @@ $addFormPost = includeTemplate(
         "errors" => $errors,
         "addPostContent" => $addPostContent,
         "types" => $types,
-        "currentType" => $currentType
+        "currentType" => $currentType,
+        'errorTitleRus' => $errorFieldTitles
     ]
 );
 

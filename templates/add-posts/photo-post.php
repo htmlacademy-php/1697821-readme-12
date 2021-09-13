@@ -1,4 +1,4 @@
-<div class="adding-post__input-wrapper form__input-wrapper">
+<div class="adding-post__input-wrapper form__input-wrapper <?= isErrorCss($errors['photo-url']); ?>">
     <label class="adding-post__label form__label" for="photo-url">Ссылка из интернета</label>
     <div class="form__input-section">
         <input class="adding-post__input form__input" id="photo-url" type="text" name="photo-url"
@@ -7,12 +7,12 @@
                     class="visually-hidden">Информация об ошибке</span>
         </button>
         <div class="form__error-text">
-            <h3 class="form__error-title">Заголовок сообщения</h3>
-            <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
+            <h3 class="form__error-title"><?= FORM_ERROR ?></h3>
+            <p class="form__error-desc"><?= $errors['photo-url'] ?></p>
         </div>
     </div>
 </div>
-<div class="adding-post__input-wrapper form__input-wrapper">
+<div class="adding-post__input-wrapper form__input-wrapper <?= isErrorCss($errors['photo-tags']); ?>">
     <label class="adding-post__label form__label" for="photo-tags">Теги</label>
     <div class="form__input-section">
         <input class="adding-post__input form__input" id="photo-tags" type="text" name="photo-tags"
@@ -21,8 +21,8 @@
                     class="visually-hidden">Информация об ошибке</span>
         </button>
         <div class="form__error-text">
-            <h3 class="form__error-title">Заголовок сообщения</h3>
-            <p class="form__error-desc">Текст сообщения об ошибке, подробно объясняющий, что не так.</p>
+            <h3 class="form__error-title"><?= FORM_ERROR ?></h3>
+            <p class="form__error-desc"><?= $errors['photo-tags'] ?>.</p>
         </div>
     </div>
 </div>

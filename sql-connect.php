@@ -192,3 +192,103 @@ ORDER BY comments.created_at DESC $limit";
 
     return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
+
+function savePost($connect, $post, $postTypeId, $currentTypeTitle, $fileUrl = null)
+{
+    $data = [
+        'id' => null,
+        'title' => $post['heading'],
+        'content' => null,
+        'author_quote' => null,
+        'image_url' => null,
+        'video_url' => null,
+        'website_url' => null,
+        'views_count' => 0,
+        'user_id' => 1,
+        'type_id' => $postTypeId
+    ];
+
+    switch ($currentTypeTitle) {
+        case 'photo':
+            if ($fileUrl) {
+                $data['image_url'] = $fileUrl;
+            } else {
+                $data['image_url'] = $post['photo-url'];
+            }
+            break;
+
+        case 'video':
+            $data['video_url'] = $post['video-url'];
+            break;
+
+        case 'text':
+            $data['content'] = $post['post-text'];
+            break;
+
+        case 'quote':
+            $data['content'] = $post['quote-text'];
+            $data['author_quote'] = $post['quote-author'];
+            break;
+
+        case 'link':
+            $data['website_url'] = $post['post-link'];
+            break;
+    }
+
+    $fields = [];
+    $dataForQuery = [];
+    foreach ($data as $key => $item) {
+        $fields[] = "$key = ?";
+        array_push($dataForQuery, $item);
+    }
+
+    $fieldsForQuery = implode(', ', $fields);
+    $sql = "INSERT INTO posts SET $fieldsForQuery";
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sql,
+        $dataForQuery
+    );
+    mysqli_stmt_execute($stmt);
+    return mysqli_insert_id($connect);
+}
+
+function save_tags($connect, $hashtags, $postId)
+{
+    $new_unique_hashtags = array_unique((explode(' ', htmlspecialchars($hashtags))));
+    $sqlHashtagsDb = "SELECT * FROM hashtags";
+    $resultHashtagsDb = mysqli_query($connect, $sqlHashtagsDb);
+
+    if ($resultHashtagsDb) {
+        $hashtagsByDb = mysqli_fetch_all($resultHashtagsDb, MYSQLI_ASSOC);
+
+        foreach ($new_unique_hashtags as $hashtag) {
+            $hashtagValue = substr($hashtag, 1, strlen($hashtag));
+            $hashtagId = null;
+            $repeatHashtagKey = array_search($hashtagValue, array_column($hashtagsByDb, 'title'));
+
+            if ($repeatHashtagKey) {
+                $hashtagId = $hashtagsByDb[$repeatHashtagKey]['id'];
+            } else {
+                $sqlHashtagTitle = "INSERT INTO hashtags SET title = ?";
+                $stmt = dbGetPrepareStmt(
+                    $connect,
+                    $sqlHashtagTitle,
+                    [$hashtagValue]
+                );
+                mysqli_stmt_execute($stmt);
+                $hashtagId = mysqli_insert_id($connect);
+            }
+
+            $sqlAddPostHashtag = "INSERT INTO post_hashtags SET post_id = ?, hashtag_id = ?";
+            $stmt_post_hashtags = dbGetPrepareStmt(
+                $connect,
+                $sqlAddPostHashtag,
+                [$postId, $hashtagId]
+            );
+            mysqli_stmt_execute($stmt_post_hashtags);
+        }
+    }
+}
+
+;

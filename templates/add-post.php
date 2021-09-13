@@ -19,7 +19,7 @@
                         <?php foreach ($types as $type): ?>
                             <li class="adding-post__tabs-item filters__item">
                                 <a class="adding-post__tabs-link filters__button filters__button--<?= $type['title'] ?>
-                                <?= (isset($type['title']) && $currentType == $type['title']) ? "filters__button--active tabs__item--active" : "" ?>
+                                <?= (isset($type['title']) && $currentType === $type['title']) ? "filters__button--active tabs__item--active" : "" ?>
                                 tabs__item button"
                                    href="/add.php?<?= "type=" . $type['title'] ?>">
                                     <span class="visually-hidden"><?= $type['title'] ?></span>

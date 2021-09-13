@@ -7,7 +7,7 @@
         <button class="form__error-button button" type="button">!<span
                     class="visually-hidden">Информация об ошибке</span></button>
         <div class="form__error-text">
-            <h3 class="form__error-title">Заголовок сообщения</h3>
+            <h3 class="form__error-title"><?= FORM_ERROR ?></h3>
             <p class="form__error-desc"><?= $errors['post-text'] ?></p>
         </div>
     </div>
@@ -20,7 +20,7 @@
         <button class="form__error-button button" type="button">!<span
                     class="visually-hidden">Информация об ошибке</span></button>
         <div class="form__error-text">
-            <h3 class="form__error-title">Заголовок сообщения</h3>
+            <h3 class="form__error-title"><?= FORM_ERROR ?></h3>
             <p class="form__error-desc"><?= $errors['post-tags']; ?></p>
         </div>
     </div>
