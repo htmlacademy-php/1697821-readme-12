@@ -15,7 +15,6 @@ if (!isset($currentType)) {
     $currentType = 'text';
 }
 
-
 $errorFieldTitles = [
     'heading' => 'Заголовок',
     'post-tags' => 'Теги',
@@ -135,7 +134,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $addPostContent = includeTemplate(
     "add-posts/" . $currentType . "-post.php",
     [
-        'currentType' => $currentType,
         'errors' => $errors
     ]
 );
@@ -145,7 +143,6 @@ $addFormPost = includeTemplate(
     [
         "errors" => $errors,
         "addPostContent" => $addPostContent,
-        "types" => $types,
         "currentType" => $currentType,
         'errorTitleRus' => $errorFieldTitles
     ]
@@ -171,4 +168,3 @@ $layoutContent = includeTemplate(
 );
 
 print($layoutContent);
-

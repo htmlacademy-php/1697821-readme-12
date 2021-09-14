@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var array $errors --массив ошибок валидации формы
+ */
+?>
 <div class="adding-post__textarea-wrapper form__input-wrapper <?= isErrorCss($errors['post-link']); ?>">
     <label class="adding-post__label form__label" for="post-link">Ссылка <span
                 class="form__input-required">*</span></label>

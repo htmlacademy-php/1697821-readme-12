@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var array $errors --массив ошибок валидации формы
+ */
+?>
 <div class="adding-post__input-wrapper form__input-wrapper <?= isErrorCss($errors['video-url']); ?>">
     <label class="adding-post__label form__label" for="video-url">
         Ссылка youtube

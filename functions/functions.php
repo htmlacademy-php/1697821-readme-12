@@ -445,67 +445,10 @@ function isShowAllComments(array $post)
 }
 
 /**
- * Convert all applicable characters to HTML entities.
- * @param $text -The string being converted.
- * @return string The converted string.
+ * Функция сохранения изображения в папку uploads
+ * @param $name
+ * @return false|string
  */
-function htmlValidate($text)
-{
-    return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-function validateHeading($value)
-{
-    $len = strlen(trim($_POST[$value]));
-
-    if (empty(trim($_POST[$value]))) {
-        return "Это поле должно быть заполнено";
-    }
-
-    if ($len < 5 or $len > 50) {
-        return "Значение должно быть от 5 до 50 символов";
-    }
-}
-
-function validateQuote($value)
-{
-    $len = strlen(trim($_POST[$value]));
-
-    if (empty(trim($_POST[$value]))) {
-        return "Это поле должно быть заполнено";
-    }
-
-    if ($len < 5 or $len > 70) {
-        return "Значение должно быть от 5 до 50 символов";
-    }
-}
-
-function validateQuoteAuthor($value)
-{
-    $len = strlen($_POST[$value]);
-
-    if (empty($_POST[$value])) {
-        return "Это поле должно быть заполнено";
-    }
-
-    if ($len < 2 or $len > 30) {
-        return "Значение должно быть от 2 до 30 символов";
-    }
-}
-
-function validatePostText($value)
-{
-    $len = strlen($_POST[$value]);
-
-    if (empty($_POST[$value])) {
-        return "Это поле должно быть заполнено";
-    }
-
-    if ($len < 2 or $len > 150) {
-        return "Значение должно быть от 2 до 150 символов";
-    }
-}
-
 function saveImage($name)
 {
     if ($_FILES[$name]['error'] !== 0) {
@@ -518,8 +461,13 @@ function saveImage($name)
     return '/uploads/' . $file_name;
 }
 
-;
-
+/**
+ * Функция сохранения загруженного изображения, если оно есть или
+ * сохранения изображения по ссылке
+ * @param $fileName
+ * @param $fileUrl
+ * @return false|string
+ */
 function uploadImage($fileName, $fileUrl)
 {
     if (isset($_FILES[$fileName]) && $_FILES[$fileName]['error'] !== 4) {
@@ -534,120 +482,43 @@ function uploadImage($fileName, $fileUrl)
     return '/uploads/' . $file_name;
 }
 
-function validateUrl($value)
-{
-    if (empty($_POST[$value])) {
-        return "Это поле должно быть заполнено";
-    }
-
-    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) === false) {
-        return "Была введена неправильная ссылка";
-    }
-}
-
-function validateVideo($value)
-{
-    if (empty($_POST[$value])) {
-        return "Это поле должно быть заполнено";
-    }
-
-    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) === false) {
-        return "Была введена неправильная ссылка";
-    }
-
-
-    set_error_handler(function () {
-    });
-    $url = "https://www.youtube.com/oembed?url=" . $_POST[$value];
-    $fop = fopen($url, "rb");
-    if (!$fop && $fop == false) {
-        return "Данное видео не найдено";
-    };
-    restore_error_handler();
-}
-
-function validateImageUrl($value)
-{
-    if (filter_var($_POST[$value], FILTER_VALIDATE_URL) === false && !empty($_POST[$value])) {
-        return "Была введена неправильная ссылка";
-    }
-
-    $validImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
-
-    if (empty($_POST[$value]) && (empty($_FILES['userpic-file-photo']) || $_FILES['userpic-file-photo']['error'] === 4)) {
-        return 'Вы должны загрузить фото, либо прикрепить ссылку из интернета';
-    }
-
-    if (!empty($_POST[$value])) {
-        $tmp = explode('.', $_POST[$value]);
-        $type = 'image/' . end($tmp);
-
-        if (!in_array($type, $validImageTypes)) {
-            return 'Неверный формат загружаемого файла.';
-        }
-
-        if (file_get_contents($_POST[$value]) === false) {
-            return 'Не удалось найти изображение. Проверьте ссылку.';
-        }
-    }
-}
-
-function validateImage($value)
-{
-    if ($_FILES[$value] && $_FILES[$value]['error'] !== 4) {
-        $fileType = $_FILES[$value]['type'];
-
-        $validImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
-
-        if (!in_array($fileType, $validImageTypes)) {
-            return $fileType . 'Неверный формат загружаемого файла. Допустимый формат: ' . implode(
-                    ' , ',
-                    $validImageTypes
-                );
-        }
-    }
-}
-
-function validateHashtag($value)
-{
-    if (!empty($_POST[$value])) {
-        $hashtags = explode(' ', $_POST[$value]);
-
-        foreach ($hashtags as $hashtag) {
-            if (substr($hashtag, 0, 1) !== '#') {
-                return 'Хэштег должен начинаться со знака решетки';
-            }
-            if (strrpos($hashtag, '#') > 0) {
-                return 'Хэш-теги разделяются пробелами';
-            }
-            if (strlen($hashtag) < 2) {
-                return 'Хэш-тег не может состоять только из знака решетки';
-            }
-        }
-    }
-}
-
+/**
+ * Функция вывода сообщений в html коде
+ * @param $type
+ * @return string|void
+ */
 function isRusNameTypes($type)
 {
     switch ($type) {
         case 'quote':
-            return "цитаты";
+            return "Форма добавления цитаты";
         case 'text':
-            return "текста";
+            return "Форма добавления текста";
         case 'photo':
-            return "фото";
+            return "Форма добавления фото";
         case 'link':
-            return "ссылки";
+            return "Форма добавления ссылки";
         case 'video':
-            return "видео";
+            return "Форма добавления видео";
     }
 }
 
+/**
+ * Функция сохранения введенных POST данных в полях формы
+ * после обновления страницы
+ * @param $name
+ * @return string
+ */
 function getPostVal($name)
 {
     return !empty($_POST) && !empty($_POST[$name]) ? htmlValidate($_POST[$name]) : '';
 }
 
+/**
+ * Функция проверки вывода ошибки в форме
+ * @param $errorField
+ * @return string
+ */
 function isErrorCss($errorField)
 {
     $classname = isset($errorField) ? "form__input-section--error" : "";

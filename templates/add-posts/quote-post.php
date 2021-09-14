@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var array $errors --массив ошибок валидации формы
+ */
+?>
 <div class="adding-post__input-wrapper form__textarea-wrapper <?= isErrorCss($errors['quote-text']); ?>">
     <label class="adding-post__label form__label" for="quote-text">Текст цитаты <span
                 class="form__input-required">*</span></label>

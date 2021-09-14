@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @var array $addPosts --массив текущего поста
+ * @var string $addFormPost -- вывод html формы текущего поста
  * @var array $types --массив типов постов
- * @var int $typeId --id текущего элемента
+ * @var int $currentType --тип текущего элемента
  * @var array $errors --массив ошибок
  */
 
