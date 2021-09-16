@@ -20,17 +20,3 @@
         </div>
     </div>
 </div>
-<div class="adding-post__input-wrapper form__input-wrapper <?= isErrorCss($errors['video-tags']); ?>">
-    <label class="adding-post__label form__label" for="video-tags">Теги</label>
-    <div class="form__input-section">
-        <input class="adding-post__input form__input" id="video-tags" type="text" name="video-tags"
-               placeholder="Введите ссылку" value="<?= getPostVal('video-tags') ?>">
-        <button class="form__error-button button" type="button">!<span
-                    class="visually-hidden">Информация об ошибке</span>
-        </button>
-        <div class="form__error-text">
-            <h3 class="form__error-title"><?= FORM_ERROR ?></h3>
-            <p class="form__error-desc"><?= $errors['video-tags'] ?></p>
-        </div>
-    </div>
-</div>

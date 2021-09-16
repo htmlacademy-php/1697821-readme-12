@@ -43,8 +43,8 @@ $validate = [
             return validateQuoteAuthor("quote-author");
         },
 
-        "post-tags" => function () {
-            return validateHashtag("post-tags");
+        "tags" => function () {
+            return validateHashtag("tags");
         }
     ],
     'text' => [
@@ -56,8 +56,8 @@ $validate = [
             return validatePostText("post-text");
         },
 
-        "post-tags" => function () {
-            return validateHashtag("post-tags");
+        "tags" => function () {
+            return validateHashtag("tags");
         }
     ],
     'photo' => [
@@ -73,8 +73,8 @@ $validate = [
             return validateImageUrl("photo-url");
         },
 
-        "post-tags" => function () {
-            return validateHashtag("photo-tags");
+        "tags" => function () {
+            return validateHashtag("tags");
         }
     ],
     'video' => [
@@ -86,8 +86,8 @@ $validate = [
             return validateVideo("video-url");
         },
 
-        "post-tags" => function () {
-            return validateHashtag("video-tags");
+        "tags" => function () {
+            return validateHashtag("tags");
         }
     ],
     'link' => [
@@ -99,8 +99,8 @@ $validate = [
             return validateUrl("post-link");
         },
 
-        "link-tags" => function () {
-            return validateHashtag("link-tags");
+        "tags" => function () {
+            return validateHashtag("tags");
         }
     ]
 ];
@@ -120,13 +120,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $postTypeId = $types[array_search($currentType, array_column($types, 'title'))]['id'];
-        $post_id = savePost($connect, $_POST, $postTypeId, $currentType, $fileUrl);
+        $postId = savePost($connect, $_POST, $postTypeId, $currentType, $fileUrl);
 
-        if (isset($_POST['post-tags'])) {
-            save_tags($connect, $_POST['post-tags'], $post_id);
+        if (isset($_POST['tags'])) {
+            save_tags($connect, $_POST['tags'], $postId);
         }
 
-        $URL = '/post.php?id=' . $post_id;
+        $URL = '/post.php?id=' . $postId;
         header("Location: $URL");
     }
 }

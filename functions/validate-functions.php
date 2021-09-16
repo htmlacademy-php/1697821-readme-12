@@ -193,13 +193,13 @@ function validateImage($value)
  */
 function validateHashtag($value)
 {
-    $len = strlen($_POST[$value]);
-
-    if ($len < 2 or $len > 250) {
-        return "Значение должно быть от 2 до 250 символов";
-    }
-
     if (!empty($_POST[$value])) {
+        $len = strlen($_POST[$value]);
+
+        if ($len < 2 or $len > 250) {
+            return "Значение должно быть от 2 до 250 символов";
+        }
+
         $hashtags = explode(' ', $_POST[$value]);
 
         foreach ($hashtags as $hashtag) {
