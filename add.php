@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $postId = savePost($connect, $_POST, $postTypeId, $currentType, $fileUrl);
 
         if (isset($_POST['tags'])) {
-            save_tags($connect, $_POST['tags'], $postId);
+            saveTags($connect, $_POST['tags'], $postId);
         }
 
         $URL = '/post.php?id=' . $postId;

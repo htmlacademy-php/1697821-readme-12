@@ -253,16 +253,16 @@ function savePost($connect, $post, $postTypeId, $currentTypeTitle, $fileUrl = nu
     return mysqli_insert_id($connect);
 }
 
-function save_tags($connect, $hashtags, $postId)
+function saveTags($connect, $hashtags, $postId)
 {
-    $new_unique_hashtags = array_unique((explode(' ', htmlspecialchars($hashtags))));
+    $newUniqueHashtags = array_unique((explode(' ', htmlspecialchars($hashtags))));
     $sqlHashtagsDb = "SELECT * FROM hashtags";
     $resultHashtagsDb = mysqli_query($connect, $sqlHashtagsDb);
 
     if ($resultHashtagsDb) {
         $hashtagsByDb = mysqli_fetch_all($resultHashtagsDb, MYSQLI_ASSOC);
 
-        foreach ($new_unique_hashtags as $hashtag) {
+        foreach ($newUniqueHashtags as $hashtag) {
             $hashtagValue = substr($hashtag, 1, strlen($hashtag));
             $hashtagId = null;
             $repeatHashtagKey = array_search($hashtagValue, array_column($hashtagsByDb, 'title'));
@@ -281,12 +281,12 @@ function save_tags($connect, $hashtags, $postId)
             }
 
             $sqlAddPostHashtag = "INSERT INTO post_hashtags SET post_id = ?, hashtag_id = ?";
-            $stmt_post_hashtags = dbGetPrepareStmt(
+            $stmtPostHashtags = dbGetPrepareStmt(
                 $connect,
                 $sqlAddPostHashtag,
                 [$postId, $hashtagId]
             );
-            mysqli_stmt_execute($stmt_post_hashtags);
+            mysqli_stmt_execute($stmtPostHashtags);
         }
     }
 }
