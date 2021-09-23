@@ -1,6 +1,63 @@
 <?php
 
 /**
+ * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param array $data Данные для вставки на место плейсхолдеров
+ *
+ * @return mysqli_stmt Подготовленное выражение
+ */
+function dbGetPrepareStmt($link, $sql, $data = [])
+{
+    $stmt = mysqli_prepare($link, $sql);
+
+    if ($stmt === false) {
+        $errorMsg = 'Не удалось инициализировать подготовленное выражение: ' . mysqli_error($link);
+        die($errorMsg);
+    }
+
+    if ($data) {
+        $types = '';
+        $stmt_data = [];
+
+        foreach ($data as $value) {
+            $type = 's';
+
+            if (is_int($value)) {
+                $type = 'i';
+            } else {
+                if (is_string($value)) {
+                    $type = 's';
+                } else {
+                    if (is_double($value)) {
+                        $type = 'd';
+                    }
+                }
+            }
+
+            if ($type) {
+                $types .= $type;
+                $stmt_data[] = $value;
+            }
+        }
+
+        $values = array_merge([$stmt, $types], $stmt_data);
+
+        $func = 'mysqli_stmt_bind_param';
+        $func(...$values);
+
+        if (mysqli_errno($link) > 0) {
+            $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($link);
+            die($errorMsg);
+        }
+    }
+
+    return $stmt;
+}
+
+/**
  * Функция для обрезания текста, если он превышает заданную длину
  * @param string $text Входящий текст
  * @param int $count Кол-во символов до обрезания
@@ -257,29 +314,29 @@ function publicationLife($publishTime)
 
 /**
  * Функция для вытаскивания заголовка с вебсайта
- * @param $link_url
+ * @param $linkUrl
  * @return mixed
  */
-function getLinkUrlTitle($link_url)
+function getLinkUrlTitle($linkUrl)
 {
-    $url_contents = file_get_contents($link_url);
-    preg_match("/<title>(.*)<\/title>/i", $url_contents, $matches);
-    return $matches[1] ?? $link_url;
+    $urlContents = file_get_contents($linkUrl);
+    preg_match("/<title>(.*)<\/title>/i", $urlContents, $matches);
+    return $matches[1] ?? $linkUrl;
 }
 
 /**
  * Функция для добавления классов в виды сортировок
- * @param $page_params
- * @param $sort_type
+ * @param $pageParams
+ * @param $sortType
  * @return string
  */
-function popularAddClass($page_params, $sort_type)
+function popularAddClass($pageParams, $sortType)
 {
     $popularAddClass = '';
-    if (!empty($page_params['sort_type']) && $page_params['sort_type'] == $sort_type) {
+    if (!empty($pageParams['sort_type']) && $pageParams['sort_type'] == $sortType) {
         $popularAddClass .= " sorting__link--active";
     }
-    if ($page_params['sort_direction'] == 'asc') {
+    if ($pageParams['sort_direction'] == 'asc') {
         $popularAddClass .= " sorting__link--reverse";
     }
     return $popularAddClass;
@@ -309,67 +366,67 @@ function getPageDefaultParams()
  */
 function popularParams()
 {
-    $avail_params = getPageDefaultParams();
+    $availParams = getPageDefaultParams();
 
-    $page_params = ["type_id" => 0, "sort_type" => "popular", "sort_direction" => "desc"];
+    $pageParams = ["type_id" => 0, "sort_type" => "popular", "sort_direction" => "desc"];
 
     if (!empty($_GET["type_id"])) {
-        $type_id = filter_input(INPUT_GET, "type_id", FILTER_SANITIZE_NUMBER_INT);
-        if (in_array($type_id, $avail_params["type_id"])) {
-            $page_params["type_id"] = $type_id;
+        $typeId = filter_input(INPUT_GET, "type_id", FILTER_SANITIZE_NUMBER_INT);
+        if (in_array($typeId, $availParams["type_id"])) {
+            $pageParams["type_id"] = $typeId;
         }
     }
     if (!empty($_GET["sort_type"])) {
-        $type_id = filter_input(INPUT_GET, "sort_type", FILTER_SANITIZE_STRING);
-        if (in_array($type_id, $avail_params["sort_type"])) {
-            $page_params["sort_type"] = $type_id;
+        $typeId = filter_input(INPUT_GET, "sort_type", FILTER_SANITIZE_STRING);
+        if (in_array($typeId, $availParams["sort_type"])) {
+            $pageParams["sort_type"] = $typeId;
         }
     }
     if (!empty($_GET["sort_direction"])) {
-        $type_id = filter_input(INPUT_GET, "sort_direction", FILTER_SANITIZE_STRING);
-        if (in_array($type_id, $avail_params["sort_direction"])) {
-            $page_params["sort_direction"] = $type_id;
+        $typeId = filter_input(INPUT_GET, "sort_direction", FILTER_SANITIZE_STRING);
+        if (in_array($typeId, $availParams["sort_direction"])) {
+            $pageParams["sort_direction"] = $typeId;
         }
     }
-    return $page_params;
+    return $pageParams;
 }
 
 /**
  * Функция для генерации параметров ссылок сортировки
  * На вход подается массив текущих параметров и массив параметров для ссылки
  * На выходе мы получаем обновленный массив параметров
- * @param array $page_params
- * @param array $mod_params
+ * @param array $pageParams
+ * @param array $modParams
  * @param false $reverseSort
  * @return array|mixed
  */
-function modPageParams($page_params = [], array $mod_params = [], $reverseSort = false)
+function modPageParams($pageParams = [], array $modParams = [], $reverseSort = false)
 {
-    if (!empty($mod_params["sort_type"]) && $page_params["sort_type"] != $mod_params["sort_type"]) {
+    if (!empty($modParams["sort_type"]) && $pageParams["sort_type"] != $modParams["sort_type"]) {
         $reverseSort = false;
-        $page_params["sort_direction"] = "desc";
+        $pageParams["sort_direction"] = "desc";
     }
 
     if ($reverseSort) {
-        $page_params['sort_direction'] = ($page_params['sort_direction'] == 'asc') ? 'desc' : 'asc';
+        $pageParams['sort_direction'] = ($pageParams['sort_direction'] == 'asc') ? 'desc' : 'asc';
     }
 
-    foreach ($mod_params as $mod => $value) {
-        $page_params[$mod] = $value;
+    foreach ($modParams as $mod => $value) {
+        $pageParams[$mod] = $value;
     }
-    return $page_params;
+    return $pageParams;
 }
 
 /**
  * Функция гля генерации ссылки сортировки
- * @param array $page_params
- * @param array $mod_params
+ * @param array $pageParams
+ * @param array $modParams
  * @param false $reverseSort
  * @return string
  */
-function getModPageQuery($page_params = [], array $mod_params = [], $reverseSort = false)
+function getModPageQuery($pageParams = [], array $modParams = [], $reverseSort = false)
 {
-    $params = modPageParams($page_params, $mod_params, $reverseSort);
+    $params = modPageParams($pageParams, $modParams, $reverseSort);
     return http_build_query($params);
 }
 
@@ -388,11 +445,82 @@ function isShowAllComments(array $post)
 }
 
 /**
- * Convert all applicable characters to HTML entities.
- * @param $text -The string being converted.
- * @return string The converted string.
+ * Функция сохранения изображения в папку uploads
+ * @param $name
+ * @return false|string
  */
-function htmlValidate($text)
+function saveImage($name)
 {
-    return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    if ($_FILES[$name]['error'] !== 0) {
+        return false;
+    }
+
+    $fileName = $_FILES[$name]['name'];
+    $filePath = __DIR__ . '/uploads/';
+    move_uploaded_file($_FILES[$name]['tmp_name'], $filePath . $fileName);
+    return '/uploads/' . $fileName;
+}
+
+/**
+ * Функция сохранения загруженного изображения, если оно есть или
+ * сохранения изображения по ссылке
+ * @param $fileName
+ * @param $fileUrl
+ * @return false|string
+ */
+function uploadImage($fileName, $fileUrl)
+{
+    if (isset($_FILES[$fileName]) && $_FILES[$fileName]['error'] !== 4) {
+        return saveImage($fileName);
+    }
+
+    $image_content = file_get_contents($_POST[$fileUrl]);
+    $file_name = basename($_POST[$fileUrl]);
+    $file_path = __DIR__ . '/uploads/';
+    file_put_contents($file_path . $file_name, $image_content);
+
+    return '/uploads/' . $file_name;
+}
+
+/**
+ * Функция вывода сообщений в html коде
+ * @param $type
+ * @return string|void
+ */
+function isRusNameTypes($type)
+{
+    switch ($type) {
+        case 'quote':
+            return "Форма добавления цитаты";
+        case 'text':
+            return "Форма добавления текста";
+        case 'photo':
+            return "Форма добавления фото";
+        case 'link':
+            return "Форма добавления ссылки";
+        case 'video':
+            return "Форма добавления видео";
+    }
+}
+
+/**
+ * Функция сохранения введенных POST данных в полях формы
+ * после обновления страницы
+ * @param $name
+ * @return string
+ */
+function getPostVal($name)
+{
+    return !empty($_POST) && !empty($_POST[$name]) ? htmlValidate($_POST[$name]) : '';
+}
+
+/**
+ * Функция проверки вывода ошибки в форме
+ * @param $errorField
+ * @return string
+ */
+function isErrorCss($errorField)
+{
+    $classname = isset($errorField) ? "form__input-section--error" : "";
+    return $classname;
 }

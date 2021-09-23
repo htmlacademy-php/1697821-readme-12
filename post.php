@@ -17,13 +17,13 @@ $connect = dbConnection();
 $post = handleMissingPost($connect, $isAuth, $title);
 
 
-$count_comment = filter_input(INPUT_GET, 'comments', FILTER_SANITIZE_STRING);
-if (!isset($count_comment)) {
-    $count_comment = COUNT_SHOW_COMMENTS;
+$countСomment = filter_input(INPUT_GET, 'comments', FILTER_SANITIZE_STRING);
+if (!isset($countСomment)) {
+    $countСomment = COUNT_SHOW_COMMENTS;
 }
 
 $hashtags = getPostHashtags($connect, $post['id']);
-$comments = getPostComments($connect, $post['id'], $count_comment);
+$comments = getPostComments($connect, $post['id'], $countСomment);
 $pageContent = includeTemplate(
     'post-page.php',
     [
@@ -31,7 +31,7 @@ $pageContent = includeTemplate(
         'post' => $post,
         'hashtags' => $hashtags,
         'comments' => $comments,
-        'count_comment' => $count_comment
+        'countComment' => $countСomment
     ]
 );
 
