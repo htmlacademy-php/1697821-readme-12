@@ -143,6 +143,12 @@ WHERE posts.id = $id";
     throw new Exception('Пост не найден');
 }
 
+/**
+ * Функция достает из БД все хештеги для поста с заданным $id
+ * @param $connect
+ * @param $id --id поста
+ * @return array|void
+ */
 function getPostHashtags($connect, $id)
 {
     $sqlPostHashtags = "SELECT
@@ -162,6 +168,13 @@ WHERE post_hashtags.post_id = $id";
     return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
 
+/**
+ * Функция достает из БД все комментарии для поста с заданным $id
+ * @param $connect
+ * @param $id --id поста
+ * @param $countComments -- ограничитель выводимых постов
+ * @return array|void
+ */
 function getPostComments($connect, $id, $countComments)
 {
     $limit = "";
@@ -193,6 +206,15 @@ ORDER BY comments.created_at DESC $limit";
     return mysqli_fetch_all($resultPost, MYSQLI_ASSOC);
 }
 
+/**
+ * Функция сохранения поста в БД
+ * @param $connect
+ * @param $post -- массив сохраняемых данных
+ * @param $postTypeId -- id типа сохраняемого поста
+ * @param $currentTypeTitle -- заголовок типа сохраняемого поста
+ * @param null $fileUrl -- ссылка на изображение, если таковая есть
+ * @return int|string -- возвращает id созданного поста
+ */
 function savePost($connect, $post, $postTypeId, $currentTypeTitle, $fileUrl = null)
 {
     $data = [
@@ -253,6 +275,12 @@ function savePost($connect, $post, $postTypeId, $currentTypeTitle, $fileUrl = nu
     return mysqli_insert_id($connect);
 }
 
+/**
+ * Функция для сохранения хештегов поста
+ * @param $connect
+ * @param $hashtags -- массив хештегов
+ * @param $postId -- id поста, в который сохраняются хештеги
+ */
 function saveTags($connect, $hashtags, $postId)
 {
     $newUniqueHashtags = array_unique((explode(' ', htmlspecialchars($hashtags))));
@@ -291,4 +319,66 @@ function saveTags($connect, $hashtags, $postId)
     }
 }
 
-;
+/**
+ * Функция записи пользователя при регистрации
+ * @param $connect
+ * @param $user -- массив данных пользователя
+ * @param null $fileUrl -- ссылка на аватар пользователя, если есть
+ * @return int|string -- возвращает id созданного пользователя
+ */
+function saveUser($connect, $user, $fileUrl = null)
+{
+    if ($fileUrl === null) {
+        $fileUrl = "/uploads/users/avatars.jpg";
+    }
+    $data = [
+        'id' => null,
+        'email' => $user['email'],
+        'login' => $user['login'],
+        'password' => password_hash($user['password'], PASSWORD_DEFAULT),
+        'avatar_url' => $fileUrl
+    ];
+
+    $fields = [];
+    $dataForQuery = [];
+    foreach ($data as $key => $item) {
+        $fields[] = "$key = ?";
+        array_push($dataForQuery, $item);
+    }
+
+    $fieldsForQuery = implode(', ', $fields);
+    $sql = "INSERT INTO users SET $fieldsForQuery";
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sql,
+        $dataForQuery
+    );
+
+    mysqli_stmt_execute($stmt);
+    return mysqli_insert_id($connect);
+}
+
+/**
+ * Функция проверки почты пользователя при регистрации
+ * @param $connect
+ * @param $email -- проверяемая почта
+ * @return bool -- true - если такая почта найдена в БД,
+ *                 false - если такой почты нет в БД
+ */
+function checkEmailInDb($connect, $email)
+{
+    $sql = "SELECT id, email FROM users WHERE email = ?";
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sql,
+        [$email]
+    );
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result && empty(mysqli_fetch_all($result, MYSQLI_ASSOC))) {
+        return false;
+    }
+
+    return true;
+}

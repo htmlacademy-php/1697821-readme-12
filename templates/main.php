@@ -25,7 +25,7 @@
                             </svg>
                         </a>
                     </li>
-                    <li class="sorting__item">
+                    <li class="sorting__item sorting__item--likes">
                         <a class="sorting__link<?= popularAddClass($pageParams, 'like'); ?>"
                            href="/index.php?<?= getModPageQuery($pageParams, ["sort_type" => "like"], true); ?>">
                             <span>Лайки</span>

@@ -17,20 +17,20 @@ SET title        = 'link',
 
 -- добавление в БД пользователей
 INSERT INTO users
-SET email        = 'larisa@mail.ru',
-    login        = 'Лариса',
-    password     = 'larisa',
-    avatar_url   = 'userpic-larisa-small.jpg';
+SET email      = 'larisa@mail.ru',
+    login      = 'Лариса',
+    password   = '$2y$10$3oLChFWmMP/LJkzqVTUmDuKpzQJ6i6DOYNaCMls2U.10F2lQ0fbwu',
+    avatar_url = 'userpic-larisa-small.jpg';
 INSERT INTO users
-SET email        = 'vladik@mail.ru',
-    login        = 'Владик',
-    password     = 'vladik',
-    avatar_url   = 'userpic.jpg';
+SET email      = 'vladik@mail.ru',
+    login      = 'Владик',
+    password   = '$2y$10$KiI3wA57MWKvmBxfUONt9O//pQHEt9WFS9oMBwiuAY/DZiTvY1jY.',
+    avatar_url = 'userpic.jpg';
 INSERT INTO users
-SET email        = 'victor@mail.ru',
-    login        = 'Виктор',
-    password     = 'victor',
-    avatar_url   = 'userpic-mark.jpg';
+SET email      = 'victor@mail.ru',
+    login      = 'Виктор',
+    password   = '$2y$10$x4knA6HlMgsc3yH4tpxiEOhwDImVoEDEIjVltuS21UyW/ituyP8y.',
+    avatar_url = 'userpic-mark.jpg';
 
 -- добавление в БД несколько постов
 INSERT INTO posts
@@ -165,7 +165,7 @@ SET
     subscribed_to_user_id = 2,
     subscriber_user_id = 3;
 
--- добавить хэштэги
+-- добавить хештеги
 INSERT INTO hashtags (title)
 VALUES ('картина'),('прекрасно'),('невообразимо');
 
