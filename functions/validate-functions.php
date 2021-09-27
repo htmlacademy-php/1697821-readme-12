@@ -215,3 +215,91 @@ function validateHashtag($value)
         }
     }
 }
+
+/**
+ * Функция для валидации поля почта при регистрации пользователя
+ * и вывода ошибок, если валидация не прошла
+ * @param $value
+ * @param $connectDb
+ * @return string|void
+ */
+function validateEmail($value, $connectDb)
+{
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    $len = strlen($_POST[$value]);
+
+    if ($len < 3 or $len > 150) {
+        return "Значение должно быть от 3 до 150 символов";
+    }
+
+    if (filter_var($_POST[$value], FILTER_VALIDATE_EMAIL) === false) {
+        return "Был введен неправильный Email";
+    }
+
+    if (checkEmailInDb($connectDb, $_POST[$value]) === true) {
+        return "Такой Email уже существует";
+    }
+}
+
+/**
+ * Функция для валидации поля логин при регистрации пользователя
+ * и вывода ошибок, если валидация не прошла
+ * @param $value
+ * @return string|void
+ */
+function validateLogin($value)
+{
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    $len = strlen($_POST[$value]);
+
+    if ($len < 3 or $len > 50) {
+        return "Значение должно быть от 3 до 50 символов";
+    }
+}
+
+/**
+ * Функция для валидации поля пароль при регистрации пользователя
+ * и вывода ошибок, если валидация не прошла
+ * @param $value
+ * @return string|void
+ */
+function validatePassword($value)
+{
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    $len = strlen($_POST[$value]);
+
+    if ($len < 8 or $len > 150) {
+        return "Значение должно быть от 8 до 150 символов";
+    }
+
+    if (!preg_match('/^\S*$/', $_POST[$value])) {
+        return 'Пароль не должен содержать пробелы';
+    }
+}
+
+/**
+ * Функция для валидации поля повторите пароль при регистрации пользователя
+ * и вывода ошибок, если валидация не прошла
+ * @param $pass
+ * @param $repeatPass
+ * @return string|void
+ */
+function validateRepeatPassword($pass, $repeatPass)
+{
+    if (empty($_POST[$repeatPass])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if ($_POST[$pass] !== $_POST[$repeatPass]) {
+        return "Пароли не совпадают";
+    }
+}

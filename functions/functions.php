@@ -63,7 +63,7 @@ function dbGetPrepareStmt($link, $sql, $data = [])
  * @param int $count Кол-во символов до обрезания
  * @return mixed|string|void
  */
-function cropText($text, $count)
+function cropText($text, $count, $postId)
 {
     $i = 0;
     $line = "";
@@ -75,7 +75,9 @@ function cropText($text, $count)
             if ($i < $count) {
                 $line .= "$piece ";
             } else {
-                return htmlValidate($line) . "...<a class='post-text__more-link' href='#'>Читать далее</a>";
+                return htmlValidate(
+                        $line
+                    ) . "...<a class='post-text__more-link' href='/post.php?id=" . $postId . "'>Читать далее</a>";
             }
         }
     } else {
