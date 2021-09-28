@@ -4,32 +4,25 @@ $user_name = 'Игорь'; // укажите здесь ваше имя
 
 date_default_timezone_set('Europe/Moscow');
 $title = 'Project site';
-
 $counter = 0; // счетчик для функции generate_random_date
 
 require_once 'bootstrap.php';
-require_once 'post-page-helper.php';
 
-
-$connect = dbConnection();
-
-$post = handleMissingPost($connect, $title);
-
-$countComment = filter_input(INPUT_GET, 'comments', FILTER_VALIDATE_INT);
-if (!isset($countComment)) {
-    $countComment = COUNT_SHOW_COMMENTS;
+if (empty($_SESSION)) {
+    header("Location: /index.php");
 }
 
-$hashtags = getPostHashtags($connect, $post['id']);
-$comments = getPostComments($connect, $post['id'], $countComment);
+$connect = dbConnection();
+$typesList = getContentTypes($connect);
+$pageParams = popularParams();
+$postsList = getListPosts($connect, $pageParams["type_id"], $pageParams["sort_type"], $pageParams["sort_direction"]);
 $pageContent = includeTemplate(
-    'post-page.php',
+    'popular-page.php',
     [
+        'types' => $typesList,
+        'posts' => $postsList,
         'counter' => $counter,
-        'post' => $post,
-        'hashtags' => $hashtags,
-        'comments' => $comments,
-        'countComment' => $countComment
+        'pageParams' => $pageParams
     ]
 );
 
@@ -42,6 +35,7 @@ $layoutContent = includeTemplate(
         'userEmail' => $_SESSION['userEmail'],
         'userLogin' => $_SESSION['userLogin'],
         'userAvatar' => $_SESSION['avatarUrl'],
+        'activePage' => "popular",
         'title' => $title
     ]
 );

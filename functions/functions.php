@@ -526,3 +526,17 @@ function isErrorCss($errorField)
     $classname = isset($errorField) ? "form__input-section--error" : "";
     return $classname;
 }
+
+/**
+ * Проверка активной страницы для css.
+ * @param $activePage
+ * @param $currentPage
+ * @return string
+ */
+function isActivePage($activePage, $currentPage)
+{
+    if ($activePage === $currentPage) {
+        return "header__page-link--active";
+    }
+    return "";
+}

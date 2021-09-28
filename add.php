@@ -162,7 +162,11 @@ $layoutContent = includeTemplate(
     'layout.php',
     [
         'mainContainer' => $pageContent,
-        'isAuth' => $isAuth,
+        'isAuth' => $_SESSION['isAuth'],
+        'userID' => $_SESSION['id'],
+        'userEmail' => $_SESSION['userEmail'],
+        'userLogin' => $_SESSION['userLogin'],
+        'userAvatar' => $_SESSION['avatarUrl'],
         'title' => $title
     ]
 );

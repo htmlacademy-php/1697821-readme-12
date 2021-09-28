@@ -1,26 +1,56 @@
 <?php
 
-$isAuth = rand(0, 1);
 $user_name = 'Игорь'; // укажите здесь ваше имя
 
 date_default_timezone_set('Europe/Moscow');
-$title = 'Project site';
-$counter = 0; // счетчик для функции generate_random_date
+$title = 'readme: незарегистрированный пользователь';
 
 require_once 'bootstrap.php';
 
+if (!empty($_SESSION)) {
+    header("Location: /feed.php");
+}
+
 $connect = dbConnection();
-$typesList = getContentTypes($connect);
-$pageParams = popularParams();
-$postsList = getListPosts($connect, $pageParams["type_id"], $pageParams["sort_type"], $pageParams["sort_direction"]);
+
+$validate = [
+    "login" => function () use ($connect) {
+        return validateEnterEmail("login", $connect);
+    },
+
+    "password" => function () use ($connect) {
+        return validateEnterPassword("password", $connect);
+    }
+];
+$errorsFieldTitles = [
+    'login' => 'Логин',
+    'password' => 'Пароль'
+];
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    foreach ($validate as $key => $value) {
+        if (!empty($value())) {
+            $errors[$key] = $value();
+        }
+    }
+
+    if (!array_filter($errors)) {
+        $userData = getUserData($connect, $_POST['login']);
+        $_SESSION['isAuth'] = 1;
+        $_SESSION['userLogin'] = $userData['login'];
+        $_SESSION['userEmail'] = $userData['email'];
+        $_SESSION['avatarUrl'] = $userData['avatar_url'];
+        $_SESSION['id'] = $userData['id'];
+
+        header("Location: /popular.php");
+    }
+}
 
 $pageContent = includeTemplate(
     'main.php',
     [
-        'types' => $typesList,
-        'posts' => $postsList,
-        'counter' => $counter,
-        'pageParams' => $pageParams
+        'errors' => $errors
     ]
 );
 
@@ -28,8 +58,8 @@ $layoutContent = includeTemplate(
     'layout.php',
     [
         'mainContainer' => $pageContent,
-        'isAuth' => $isAuth,
-        'title' => $title
+        'title' => $title,
+        'isMainPage' => true
     ]
 );
 
