@@ -5,9 +5,11 @@ const DB_USERNAME = "root";
 const DB_PASSWORD = "root";
 const DB_NAME = "readme";
 
-const QUALITY_POPULAR_POSTS = 6; // число ограничивающее количество постов на странице Популярное
+const QUANTITY_POPULAR_POSTS = 6; // число ограничивающее количество постов на странице Популярное
 
-const QUALITY_FEED_POSTS = 10; // число ограничивающее количество постов на странице Лента (feed.php)
+const QUANTITY_FEED_POSTS = 10; // число ограничивающее количество постов на странице Лента (feed.php)
+
+const QUANTITY_SEARCH_POSTS = 10; // число ограничивающее количество постов на странице Поиск (search.php)
 
 const COUNT_SHOW_COMMENTS = 5; // число ограничивающее показ комментариев на странице post.php
 

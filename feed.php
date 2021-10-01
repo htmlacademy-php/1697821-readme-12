@@ -1,7 +1,5 @@
 <?php
 
-$user_name = 'Игорь'; // укажите здесь ваше имя
-
 date_default_timezone_set('Europe/Moscow');
 $title = 'readme: лента';
 

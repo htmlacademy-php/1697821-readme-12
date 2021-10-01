@@ -126,10 +126,10 @@
                         </ul>
                     </nav>
                     <?php else: ?>
-                        <form class="header__search-form form" action="#" method="get">
+                        <form class="header__search-form form" action="/search.php" method="get">
                             <div class="header__search">
                                 <label class="visually-hidden">Поиск</label>
-                                <input class="header__search-input form__input" type="search">
+                                <input class="header__search-input form__input" type="search" name="search">
                                 <button class="header__search-button button" type="submit">
                                     <svg class="header__search-icon" width="18" height="18">
                                         <use xlink:href="#icon-search"></use>
@@ -164,7 +164,7 @@
                                 <!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
                                 <ul class="header__user-nav">
                                     <li class="header__profile">
-                                        <a class="header__profile-link" href="#">
+                                        <a class="header__profile-link" href="/profile.php?id=<?= $userID ?>">
                                             <div class="header__avatar-wrapper">
                                                 <img class="header__profile-avatar"
                                                      src="/img/<?= !empty($userAvatar) ? $userAvatar : 'no-avatar.png' ?>"
@@ -183,7 +183,8 @@
                                             <div class="header__profile-tooltip">
                                                 <ul class="header__profile-nav">
                                                     <li class="header__profile-nav-item">
-                                                        <a class="header__profile-nav-link" href="#">
+                                                        <a class="header__profile-nav-link"
+                                                           href="/profile.php?id=<?= $userID ?>">
                                   <span class="header__profile-nav-text">
                                     Мой профиль
                                   </span>

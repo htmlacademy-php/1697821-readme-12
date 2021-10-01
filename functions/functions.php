@@ -540,3 +540,8 @@ function isActivePage($activePage, $currentPage)
     }
     return "";
 }
+
+function htmlTime($publishTime)
+{
+    return 'datetime="' . $publishTime . '" title="' . date('d.m.Y H:i', strtotime($publishTime)) . '"';
+}

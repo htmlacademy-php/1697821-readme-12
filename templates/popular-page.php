@@ -59,8 +59,7 @@
                         <li class="popular__filters-item filters__item">
                             <a class="filters__button filters__button--<?= $type['title'] ?> button
                             <?= (isset($type['id']) && $pageParams["type_id"] == $type['id']) ? "filters__button--active" : "" ?>"
-                               href="/popular.php?
-                               <?= getModPageQuery(
+                               href="/popular.php?<?= getModPageQuery(
                                    $pageParams,
                                    [
                                        "type_id" => $type["id"],
@@ -89,14 +88,11 @@
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
-                        <?php print(includeTemplate(
-                            "forms-posts/" . $post['type_title'] . "-post.php",
-                            ['post' => $post]
-                        )); ?>
+                        <?= includeTemplate("forms-posts/" . $post['type_title'] . "-post.php", ['post' => $post]); ?>
                     </div>
                     <footer class="post__footer">
                         <div class="post__author">
-                            <a class="post__author-link" href="#" title="Автор">
+                            <a class="post__author-link" href="/profile.php?id=<?= $post['user_id'] ?>" title="Автор">
                                 <div class="post__avatar-wrapper">
                                     <!--укажите путь к файлу аватара-->
                                     <img class="post__author-avatar"
@@ -107,10 +103,8 @@
                                     <b class="post__author-name"><!--здесь имя пользователя--><?= strip_tags(
                                             $post['user_login']
                                         ) ?></b>
-                                    <time class="post__time"
-                                          datetime="<?= $publishTime = generateRandomDate($counter++) ?>"
-                                          title="<?= date('d.m.Y H:i', strtotime($publishTime)) ?>">
-                                        <?= publicationLife($publishTime) ?>
+                                    <time class="post__time" <?= htmlTime($post['created_at']) ?>>
+                                        <?= publicationLife($post['created_at']) ?>
                                     </time>
                                 </div>
                             </a>
@@ -128,7 +122,8 @@
                                     <span><?= $post['count_post_likes'] ?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
-                                <a class="post__indicator post__indicator--comments button" href="#"
+                                <a class="post__indicator post__indicator--comments button"
+                                   href="/post.php?id=<?= $post['id'] ?>"
                                    title="Комментарии">
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>

@@ -3,6 +3,7 @@
  * @var array $post --массив содержащий данные о посте и создателе поста
  * @var array $hashtags -- массив хэштегов текущего поста
  * @var array $comments --массив комментариев текущего поста
+ * @var string $postContent --вывод html формы текущего поста
  */
 
 ?>
@@ -14,22 +15,7 @@
             <div class="post-details__wrapper post-<?= $post['type_title'] ?>>">
                 <div class="post-details__main-block post post--details">
                     <!--здесь содержимое карточки-->
-                    <?php switch ($post['type_title']):
-                        case 'quote':
-                            print(includeTemplate("detail-posts/quote-post.php", ['post' => $post]));
-                            break;
-                        case 'text':
-                            print(includeTemplate("detail-posts/text-post.php", ['post' => $post]));
-                            break;
-                        case 'photo':
-                            print(includeTemplate("detail-posts/photo-post.php", ['post' => $post]));
-                            break;
-                        case 'link':
-                            print(includeTemplate("detail-posts/link-post.php", ['post' => $post]));
-                            break;
-                        case 'video':
-                            print(includeTemplate("detail-posts/video-post.php", ['post' => $post]));
-                    endswitch ?>
+                    <?= $postContent ?>
                     <div class="post__indicators">
                         <div class="post__buttons">
                             <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
@@ -43,14 +29,14 @@
                                 <span><?= $post['count_post_likes']; ?></span>
                                 <span class="visually-hidden">количество лайков</span>
                             </a>
-                            <a class="post__indicator post__indicator--comments button" href="#"
-                               title="Комментарии">
+                            <span class="post__indicator post__indicator--comments" href="#"
+                                  title="Комментарии">
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-comment"></use>
                                 </svg>
                                 <span><?= $post['count_post_comments']; ?></span>
                                 <span class="visually-hidden">количество комментариев</span>
-                            </a>
+                            </span>
                             <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-repost"></use>
@@ -63,7 +49,11 @@
                     </div>
                     <ul class="post__tags">
                         <?php foreach ($hashtags as $hashtag): ?>
-                            <li><a href="#">#<?= $hashtag['hashtag_title'] ?></a></li>
+                            <li>
+                                <a href="search.php?search=%23<?= $hashtag['hashtag_title'] ?>">
+                                    #<?= $hashtag['hashtag_title'] ?>
+                                </a>
+                            </li>
                         <?php endforeach; ?>
                     </ul>
                     <div class="comments">
@@ -89,7 +79,8 @@
                                 <?php foreach ($comments as $comment): ?>
                                     <li class="comments__item user">
                                         <div class="comments__avatar">
-                                            <a class="user__avatar-link" href="#">
+                                            <a class="user__avatar-link"
+                                               href="/profile.php?id=<?= $comment['user_id'] ?>">
                                                 <img class="comments__picture"
                                                      src="../img/<?= $comment['user_avatar_url'] ?>"
                                                      alt="Аватар пользователя">
@@ -97,11 +88,13 @@
                                         </div>
                                         <div class="comments__info">
                                             <div class="comments__name-wrapper">
-                                                <a class="comments__user-name" href="#">
+                                                <a class="comments__user-name"
+                                                   href="/profile.php?id=<?= $comment['user_id'] ?>">
                                                     <span><?= $comment['user_login'] ?></span>
                                                 </a>
-                                                <time class="comments__time"
-                                                      datetime="2019-03-20"><?= $comment['created_at'] ?></time>
+                                                <time class="comments__time" <?= htmlTime($comment['created_at']) ?>>
+                                                    <?= publicationLife($comment['created_at']) ?>
+                                                </time>
                                             </div>
                                             <p class="comments__text">
                                                 <?= $comment['content'] ?>
@@ -109,41 +102,57 @@
                                         </div>
                                     </li>
                                 <?php endforeach; ?>
-
                             </ul>
                             <?php if (isShowAllComments($post) === true): ?>
                             <a class="comments__more-link" href="<?= $_SERVER['REQUEST_URI'] ?>&comments=all">
                                 <span>Показать все комментарии</span>
                                 <sup class="comments__amount"><?= $post['count_post_comments'] - COUNT_SHOW_COMMENTS ?></sup>
                             </a>
-                            <?php endif;?>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
                 <div class="post-details__user user">
                     <div class="post-details__user-info user__info">
                         <div class="post-details__avatar user__avatar">
-                            <a class="post-details__avatar-link user__avatar-link" href="#">
+                            <a class="post-details__avatar-link user__avatar-link"
+                               href="/profile.php?id=<?= $post['user_id'] ?>">
                                 <img class="post-details__picture user__picture"
                                      src="./img/<?= $post['user_avatar_url']; ?>"
                                      alt="Аватар пользователя">
                             </a>
                         </div>
                         <div class="post-details__name-wrapper user__name-wrapper">
-                            <a class="post-details__name user__name" href="#">
+                            <a class="post-details__name user__name" href="/profile.php?id=<?= $post['user_id'] ?>">
                                 <span><?= $post['user_login']; ?></span>
                             </a>
-                            <time class="post-details__time user__time" datetime="2014-03-20">5 лет на сайте</time>
+                            <time class="post-details__time user__time" <?= htmlTime($post['user_created_at']) ?>>
+                                <?= publicationLife($post['user_created_at']) ?>
+                            </time>
                         </div>
                     </div>
                     <div class="post-details__rating user__rating">
                         <p class="post-details__rating-item user__rating-item user__rating-item--subscribers">
                             <span class="post-details__rating-amount user__rating-amount"><?= $post['count_user_subscribers']; ?></span>
-                            <span class="post-details__rating-text user__rating-text">подписчиков</span>
+                            <span class="post-details__rating-text user__rating-text">
+                                <?= getNounPluralForm(
+                                    $post['count_user_subscribers'],
+                                    'подписчик',
+                                    'подписчика',
+                                    'подписчиков'
+                                ) ?>
+                            </span>
                         </p>
                         <p class="post-details__rating-item user__rating-item user__rating-item--publications">
                             <span class="post-details__rating-amount user__rating-amount"><?= $post['count_user_posts']; ?></span>
-                            <span class="post-details__rating-text user__rating-text">публикаций</span>
+                            <span class="post-details__rating-text user__rating-text">
+                                <?= getNounPluralForm(
+                                    $post['count_user_posts'],
+                                    'публикация',
+                                    'публикации',
+                                    'публикаций'
+                                ) ?>
+                            </span>
                         </p>
                     </div>
                     <div class="post-details__user-buttons user__buttons">
