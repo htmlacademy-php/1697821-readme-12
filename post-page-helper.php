@@ -15,7 +15,11 @@ function showNotFoundPage($isAuth, $title)
         'layout.php',
         [
             'mainContainer' => $pageContent,
-            'is_auth' => $isAuth,
+            'isAuth' => $_SESSION['isAuth'],
+            'userID' => $_SESSION['id'],
+            'userEmail' => $_SESSION['userEmail'],
+            'userLogin' => $_SESSION['userLogin'],
+            'userAvatar' => $_SESSION['avatarUrl'],
             'title' => $title
         ]
     );
@@ -30,13 +34,13 @@ function showNotFoundPage($isAuth, $title)
  * @param $title
  * @return array|void
  */
-function handleMissingPost($connect, $isAuth, $title)
+function handleMissingPost($connect, $title)
 {
     try {
         $postId = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
         return getPost($connect, $postId);
     } catch (Exception $e) {
-        showNotFoundPage($isAuth, $title);
+        showNotFoundPage($title);
         exit();
     }
 }

@@ -1,4 +1,5 @@
 <?php
+require_once 'init.php';
 require_once 'constants.php';
 require_once 'functions/functions.php';
 require_once 'functions/validate-functions.php';

@@ -303,3 +303,31 @@ function validateRepeatPassword($pass, $repeatPass)
         return "Пароли не совпадают";
     }
 }
+
+/**
+ * Функция валидации поля email при авторизации.
+ * @param $value
+ * @param $connect
+ * @return string|void
+ */
+function validateEnterEmail($value, $connect)
+{
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if (checkEmailInDb($connect, $_POST[$value]) === true) {
+        return "Данный Email не зарегистрирован";
+    }
+}
+
+function validateEnterPassword($value, $connect)
+{
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if (!empty($_POST[$value]) && !empty($_POST["password"]) && !checkUser($connect, $_POST)) {
+        return 'Вы ввели неверный email/пароль.';
+    }
+}

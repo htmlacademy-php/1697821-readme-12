@@ -377,8 +377,117 @@ function checkEmailInDb($connect, $email)
     $result = mysqli_stmt_get_result($stmt);
 
     if ($result && empty(mysqli_fetch_all($result, MYSQLI_ASSOC))) {
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
+}
+
+/**
+ * Функция проверки пароля при авторизации пользователя.
+ * @param $connect
+ * @param $post
+ * @return bool -- true - если пароль совпадает,
+ *                 false - если пароль не совпадает
+ */
+function checkUser($connect, $post)
+{
+    $sql = "SELECT id, email, password FROM users WHERE email = ?";
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sql,
+        [$post["login"]]
+    );
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $userData = mysqli_fetch_assoc($result);
+
+    if ($result && !empty($userData) && password_verify($post["password"], $userData["password"])) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Функция достает из БД все данные пользователя найденные по почте.
+ * @param $connect
+ * @param $email
+ * @return array|false|string[]|null
+ */
+function getUserData($connect, $email)
+{
+    $sql = "SELECT id, email, login, avatar_url FROM users WHERE email = ?";
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sql,
+        [$email]
+    );
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $userData = null;
+
+    if ($result) {
+        $userData = mysqli_fetch_assoc($result);
+    }
+
+    return $userData;
+}
+
+/**
+ * Функция получает 6 (число можно изменить изменив константу quality_popular_posts)
+ * самых популярных постов из БД readme.
+ * Возвращает массив содержащий данные поста,
+ * объединённых с данными пользователей, типами постов и отсортированные по популярности.
+ * Если подключение не выполнено, то происходит вывод ошибки подключения и операции приостанавливаются.
+ * @param $connect
+ * @param $typeId - для сортировки по типу поста
+ * @param $sortType - для сортировки по популярности, лайкам или дате
+ * @param $sortDirection - для сортировки ASC, DESC
+ * @return array|void
+ */
+function getUserFeed($connect, $userId, $typeId)
+{
+    $sqlPosts = "SELECT
+        posts.id,
+        posts.title,
+        types.id AS 'type_id',
+        types.title AS 'type_title',
+        posts.content,
+        posts.author_quote,
+        posts.image_url,
+        posts.video_url,
+        posts.website_url,
+        users.id AS 'user_id',
+        users.login AS 'user_login',
+        users.avatar_url AS 'user_avatar_url',
+        posts.views_count,
+        subscriptions.subscribed_to_user_id,
+        subscriptions.subscriber_user_id,
+        (SELECT COUNT(likes.user_id) FROM likes WHERE likes.post_id = posts.id) AS 'count_post_likes',
+        (SELECT COUNT(comments.id) FROM comments WHERE comments.post_id=posts.id) AS 'count_post_comments',
+        (SELECT COUNT(posts.original_post_id) FROM posts WHERE posts.original_post_id=posts.id) AS 'count_post_reposts'
+FROM posts
+          INNER JOIN users ON posts.user_id = users.id
+          INNER JOIN types ON posts.type_id = types.id
+          JOIN subscriptions ON posts.user_id = subscriptions.subscribed_to_user_id
+WHERE (? > 0 AND types.id = ? OR ? = 0 AND types.id >= ?) AND subscriptions.subscriber_user_id = ?
+ORDER BY posts.created_at DESC
+LIMIT " . QUALITY_FEED_POSTS;
+
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sqlPosts,
+        [
+            $typeId,
+            $typeId,
+            $typeId,
+            $typeId,
+            $userId
+        ]
+    );
+    mysqli_stmt_execute($stmt);
+    $resultPosts = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_all($resultPosts, MYSQLI_ASSOC);
 }

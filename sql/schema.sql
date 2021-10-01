@@ -26,22 +26,22 @@ CREATE TABLE `readme`.`types` (
 );
 
 CREATE TABLE `readme`.`posts` (
-    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `title` VARCHAR(255) NOT NULL,
-    `content` TEXT NULL,
-    `author_quote` VARCHAR(255) NULL,                             -- автор цитаты (author_quote)?
-    `image_url` VARCHAR(2048)  NULL,
-    `video_url` VARCHAR(2048)  NULL,
-    `website_url` VARCHAR(2048)  NULL,
-    `views_count` INT UNSIGNED DEFAULT 0,                         -- число просмотров
-    `repost_flag` BOOL DEFAULT FALSE,                             -- 3.4. Репост флаг репоста
-    `original_post_author` INT UNSIGNED,                          -- и ID оригинального поста
-    `user_id` INT UNSIGNED NOT NULL,
-    `type_id` INT UNSIGNED NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (type_id) REFERENCES types (id)
+                                  `id`               INT UNSIGNED                           NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                  `created_at`       DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                                  `updated_at`       DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                  `title`            VARCHAR(255)                           NOT NULL,
+                                  `content`          TEXT                                   NULL,
+                                  `author_quote`     VARCHAR(255)                           NULL, -- автор цитаты (author_quote)?
+                                  `image_url`        VARCHAR(2048)                          NULL,
+                                  `video_url`        VARCHAR(2048)                          NULL,
+                                  `website_url`      VARCHAR(2048)                          NULL,
+                                  `views_count`      INT UNSIGNED DEFAULT 0,                      -- число просмотров
+                                  `repost_flag`      BOOL         DEFAULT FALSE,                  -- 3.4. Репост флаг репоста
+                                  `original_post_id` INT UNSIGNED,                                -- и ID оригинального поста
+                                  `user_id`          INT UNSIGNED                           NOT NULL,
+                                  `type_id`          INT UNSIGNED                           NOT NULL,
+                                  FOREIGN KEY (user_id) REFERENCES users (id),
+                                  FOREIGN KEY (type_id) REFERENCES types (id)
 );
 
 CREATE TABLE `readme`.`comments` (
