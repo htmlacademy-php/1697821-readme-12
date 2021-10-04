@@ -1,7 +1,5 @@
 <?php
 
-$user_name = 'Игорь'; // укажите здесь ваше имя
-
 date_default_timezone_set('Europe/Moscow');
 $title = 'Project site';
 $counter = 0; // счетчик для функции generate_random_date
@@ -16,6 +14,7 @@ $connect = dbConnection();
 $typesList = getContentTypes($connect);
 $pageParams = popularParams();
 $postsList = getListPosts($connect, $pageParams["type_id"], $pageParams["sort_type"], $pageParams["sort_direction"]);
+
 $pageContent = includeTemplate(
     'popular-page.php',
     [

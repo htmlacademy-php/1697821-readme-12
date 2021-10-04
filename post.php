@@ -1,7 +1,5 @@
 <?php
 
-$user_name = 'Игорь'; // укажите здесь ваше имя
-
 date_default_timezone_set('Europe/Moscow');
 $title = 'Project site';
 
@@ -15,16 +13,23 @@ $connect = dbConnection();
 
 $post = handleMissingPost($connect, $title);
 
-$countComment = filter_input(INPUT_GET, 'comments', FILTER_VALIDATE_INT);
+$countComment = filter_input(INPUT_GET, 'comments', FILTER_SANITIZE_STRING);
 if (!isset($countComment)) {
     $countComment = COUNT_SHOW_COMMENTS;
 }
 
 $hashtags = getPostHashtags($connect, $post['id']);
 $comments = getPostComments($connect, $post['id'], $countComment);
+
+$postContent = includeTemplate(
+    "detail-posts/" . $post['type_title'] . "-post.php",
+    ['post' => $post]
+);
+
 $pageContent = includeTemplate(
     'post-page.php',
     [
+        'postContent' => $postContent,
         'counter' => $counter,
         'post' => $post,
         'hashtags' => $hashtags,

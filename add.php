@@ -1,8 +1,5 @@
 <?php
 
-$isAuth = rand(0, 1);
-$user_name = 'Игорь'; // укажите здесь ваше имя
-
 date_default_timezone_set('Europe/Moscow');
 $title = 'readme: добавление публикации';
 
@@ -17,7 +14,7 @@ if (!isset($currentType)) {
 
 $errorFieldTitles = [
     'heading' => 'Заголовок',
-    'post-tags' => 'Теги',
+    'tags' => 'Теги',
     'photo-url' => 'Ссылка из интернета',
     'userpic-file-photo' => 'Изображение',
     'video-url' => 'Ссылка Youtube',

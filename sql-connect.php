@@ -64,26 +64,19 @@ function getListPosts($connect, $typeId, $sortType, $sortDirection)
     }
 
     $sqlPosts = "SELECT
-        posts.id,
-        posts.title,
+        posts.*,
         types.id AS 'type_id',
         types.title AS 'type_title',
-        posts.content,
-        posts.author_quote,
-        posts.image_url,
-        posts.video_url,
-        posts.website_url,
         users.id AS 'user_id',
         users.login AS 'user_login',
         users.avatar_url AS 'user_avatar_url',
-        posts.views_count,
         (SELECT COUNT(likes.user_id) FROM likes WHERE likes.post_id = posts.id) AS 'count_post_likes',
         (SELECT COUNT(comments.id) FROM comments WHERE comments.post_id=posts.id) AS 'count_post_comments'
 FROM posts
           INNER JOIN users ON posts.user_id = users.id
           INNER JOIN types ON posts.type_id = types.id
 WHERE $typeId > 0 AND types.id = $typeId OR $typeId = 0 AND types.id >= $typeId
-ORDER BY " . $order . " LIMIT " . QUALITY_POPULAR_POSTS;
+ORDER BY " . $order . " LIMIT " . QUANTITY_POPULAR_POSTS;
 
     $resultPosts = mysqli_query($connect, $sqlPosts);
 
@@ -107,19 +100,13 @@ function getPost($connect, $id)
         throw new Exception('Не задан ID поста');
     }
     $sqlPostInfo = "SELECT
-        posts.id,
-        posts.title,
+        posts.*,
         types.id AS 'type_id',
         types.title AS 'type_title',
-        posts.content,
-        posts.author_quote,
-        posts.image_url,
-        posts.video_url,
-        posts.website_url,
         users.id AS 'user_id',
         users.login AS 'user_login',
         users.avatar_url AS 'user_avatar_url',
-        posts.views_count,
+        users.created_at AS 'user_created_at',
         (SELECT COUNT(posts.id) FROM posts WHERE posts.user_id = users.id) AS 'count_user_posts',
         (SELECT COUNT(likes.user_id) FROM likes WHERE likes.post_id = posts.id) AS 'count_post_likes',
         (SELECT COUNT(subscriptions.subscriber_user_id) FROM subscriptions WHERE subscriptions.subscribed_to_user_id = users.id) AS 'count_user_subscribers',
@@ -182,7 +169,7 @@ function getPostComments($connect, $id, $countComments)
         $limit = "LIMIT $countComments";
     }
 
-    $sqlPostHashtags = "SELECT
+    $sqlPostComments = "SELECT
         comments.id,
         comments.content,
         comments.created_at,
@@ -195,9 +182,9 @@ FROM comments
         INNER JOIN users ON comments.user_id = users.id
         INNER JOIN posts ON comments.post_id = posts.id
 WHERE posts.id = $id
-ORDER BY comments.created_at DESC $limit";
+ORDER BY comments.created_at DESC " . $limit;
 
-    $resultPost = mysqli_query($connect, $sqlPostHashtags);
+    $resultPost = mysqli_query($connect, $sqlPostComments);
 
     if (!$resultPost) {
         exit('Ошибка запроса: ' . mysqli_error($connect));
@@ -473,7 +460,7 @@ FROM posts
           JOIN subscriptions ON posts.user_id = subscriptions.subscribed_to_user_id
 WHERE (? > 0 AND types.id = ? OR ? = 0 AND types.id >= ?) AND subscriptions.subscriber_user_id = ?
 ORDER BY posts.created_at DESC
-LIMIT " . QUALITY_FEED_POSTS;
+LIMIT " . QUANTITY_FEED_POSTS;
 
     $stmt = dbGetPrepareStmt(
         $connect,
@@ -485,6 +472,74 @@ LIMIT " . QUALITY_FEED_POSTS;
             $typeId,
             $userId
         ]
+    );
+    mysqli_stmt_execute($stmt);
+    $resultPosts = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_all($resultPosts, MYSQLI_ASSOC);
+}
+
+/**
+ * Функция поиска в БД по полям posts.title, posts.content
+ * @param $connect
+ * @param $valueQuery
+ * @return array
+ */
+function getSeachResult($connect, $valueQuery)
+{
+    $sqlPosts = "SELECT
+        posts.*,
+        users.id AS 'user_id',
+        users.login AS 'user_login',
+        users.avatar_url AS 'user_avatar_url',
+        types.title AS 'type_title',
+        (SELECT COUNT(likes.user_id) FROM likes WHERE likes.post_id = posts.id) AS 'count_post_likes',
+        (SELECT COUNT(comments.id) FROM comments WHERE comments.post_id=posts.id) AS 'count_post_comments'
+FROM posts
+          INNER JOIN users ON posts.user_id = users.id
+          INNER JOIN types ON posts.type_id = types.id
+WHERE MATCH(posts.title, posts.content) AGAINST(?)
+LIMIT " . QUANTITY_SEARCH_POSTS;
+
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sqlPosts,
+        [$valueQuery]
+    );
+    mysqli_stmt_execute($stmt);
+    $resultPosts = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_all($resultPosts, MYSQLI_ASSOC);
+}
+
+/**
+ * Функция поиска по хэштегу (когда запрос начинается с #)
+ * @param $connect
+ * @param $valueQuery
+ * @return array
+ */
+function getSearchHashtagResult($connect, $valueQuery)
+{
+    $sqlPosts = "SELECT
+        posts.*,
+        users.id AS 'user_id',
+        users.login AS 'user_login',
+        users.avatar_url AS 'user_avatar_url',
+        types.title AS 'type_title',
+        (SELECT COUNT(likes.user_id) FROM likes WHERE likes.post_id = posts.id) AS 'count_post_likes',
+        (SELECT COUNT(comments.id) FROM comments WHERE comments.post_id=posts.id) AS 'count_post_comments'
+FROM posts
+          INNER JOIN users ON posts.user_id = users.id
+          INNER JOIN types ON posts.type_id = types.id
+WHERE posts.id IN (
+    SELECT post_hashtags.post_id FROM post_hashtags WHERE post_hashtags.hashtag_id = (
+        SELECT hashtags.id FROM hashtags WHERE hashtags.title = ?))
+LIMIT " . QUANTITY_SEARCH_POSTS;
+
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sqlPosts,
+        [$valueQuery]
     );
     mysqli_stmt_execute($stmt);
     $resultPosts = mysqli_stmt_get_result($stmt);
