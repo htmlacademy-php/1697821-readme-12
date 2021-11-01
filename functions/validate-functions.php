@@ -88,6 +88,25 @@ function validatePostText($value)
 }
 
 /**
+ * Функция для валидации поля комментария
+ * и вывода ошибок, если валидация не прошла
+ * @param $value
+ * @return string|void
+ */
+function validateMessage($value)
+{
+    $len = strlen($_POST[$value]);
+
+    if (empty($_POST[$value])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    if ($len < 2 or $len > 150) {
+        return "Значение должно быть от 2 до 150 символов";
+    }
+}
+
+/**
  * Функция для валидации поля ссылки при добавлении поста
  * и вывода ошибок, если валидация не прошла
  * @param $value

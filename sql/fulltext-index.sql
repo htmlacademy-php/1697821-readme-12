@@ -1,1 +1,0 @@
-CREATE FULLTEXT INDEX post_search ON posts (title, content);
