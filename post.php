@@ -21,6 +21,28 @@ if (!isset($countComment)) {
 $hashtags = getPostHashtags($connect, $post['id']);
 $comments = getPostComments($connect, $post['id'], $countComment);
 
+$errorFieldTitles = [
+    'comment' => 'комментарий'
+];
+
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $validate = [
+        'comment' => validateMessage("comment")
+    ];
+
+    if (!empty($validate['comment'])) {
+        $errors['comment'] = $validate['comment'];
+    }
+
+    if (!array_filter($errors)) {
+        $saveComment = saveComment($connect, $_POST['comment'], $_SESSION['id'], $post['id']);
+        $URL = '/post.php?id=' . $post['id'];
+        header("Location: $URL");
+    }
+}
 $postContent = includeTemplate(
     "detail-posts/" . $post['type_title'] . "-post.php",
     ['post' => $post]
@@ -34,7 +56,8 @@ $pageContent = includeTemplate(
         'post' => $post,
         'hashtags' => $hashtags,
         'comments' => $comments,
-        'countComment' => $countComment
+        'countComment' => $countComment,
+        'errors' => $errors
     ]
 );
 

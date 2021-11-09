@@ -368,29 +368,34 @@ function getPageDefaultParams()
  */
 function popularParams()
 {
-    $availParams = getPageDefaultParams();
+    $avail_params = getPageDefaultParams();
 
-    $pageParams = ["type_id" => 0, "sort_type" => "popular", "sort_direction" => "desc"];
+    $page_params = ["type_id" => 0, "sort_type" => "popular", "sort_direction" => "desc", "page" => 1];
 
     if (!empty($_GET["type_id"])) {
-        $typeId = filter_input(INPUT_GET, "type_id", FILTER_SANITIZE_NUMBER_INT);
-        if (in_array($typeId, $availParams["type_id"])) {
-            $pageParams["type_id"] = $typeId;
+        $type_id = filter_input(INPUT_GET, "type_id", FILTER_SANITIZE_NUMBER_INT);
+        if (in_array($type_id, $avail_params["type_id"])) {
+            $page_params["type_id"] = $type_id;
         }
     }
     if (!empty($_GET["sort_type"])) {
-        $typeId = filter_input(INPUT_GET, "sort_type", FILTER_SANITIZE_STRING);
-        if (in_array($typeId, $availParams["sort_type"])) {
-            $pageParams["sort_type"] = $typeId;
+        $sort_type = filter_input(INPUT_GET, "sort_type", FILTER_SANITIZE_STRING);
+        if (in_array($sort_type, $avail_params["sort_type"])) {
+            $page_params["sort_type"] = $sort_type;
         }
     }
     if (!empty($_GET["sort_direction"])) {
-        $typeId = filter_input(INPUT_GET, "sort_direction", FILTER_SANITIZE_STRING);
-        if (in_array($typeId, $availParams["sort_direction"])) {
-            $pageParams["sort_direction"] = $typeId;
+        $sort_direction = filter_input(INPUT_GET, "sort_direction", FILTER_SANITIZE_STRING);
+        if (in_array($sort_direction, $avail_params["sort_direction"])) {
+            $page_params["sort_direction"] = $sort_direction;
         }
     }
-    return $pageParams;
+    if (!empty($_GET["page"])) {
+        $page = filter_input(INPUT_GET, "page", FILTER_SANITIZE_NUMBER_INT);
+
+        $page_params["page"] = $page;
+    }
+    return $page_params;
 }
 
 /**
@@ -402,7 +407,7 @@ function popularParams()
  * @param false $reverseSort
  * @return array|mixed
  */
-function modPageParams($pageParams = [], array $modParams = [], $reverseSort = false)
+function modPageParams($pageParams = [], array $modParams = [], $reverseSort = false, $changePage = false)
 {
     if (!empty($modParams["sort_type"]) && $pageParams["sort_type"] != $modParams["sort_type"]) {
         $reverseSort = false;
@@ -413,9 +418,14 @@ function modPageParams($pageParams = [], array $modParams = [], $reverseSort = f
         $pageParams['sort_direction'] = ($pageParams['sort_direction'] == 'asc') ? 'desc' : 'asc';
     }
 
+    if ($changePage == false){
+        $pageParams['page'] = 1;
+    }
+
     foreach ($modParams as $mod => $value) {
         $pageParams[$mod] = $value;
     }
+
     return $pageParams;
 }
 
@@ -426,9 +436,9 @@ function modPageParams($pageParams = [], array $modParams = [], $reverseSort = f
  * @param false $reverseSort
  * @return string
  */
-function getModPageQuery($pageParams = [], array $modParams = [], $reverseSort = false)
+function getModPageQuery($pageParams = [], array $modParams = [], $reverseSort = false, $changePage = false)
 {
-    $params = modPageParams($pageParams, $modParams, $reverseSort);
+    $params = modPageParams($pageParams, $modParams, $reverseSort, $changePage);
     return http_build_query($params);
 }
 
@@ -541,7 +551,25 @@ function isActivePage($activePage, $currentPage)
     return "";
 }
 
-function htmlTime($publishTime)
+function htmlTime($publishTime):string
 {
     return 'datetime="' . $publishTime . '" title="' . date('d.m.Y H:i', strtotime($publishTime)) . '"';
+}
+
+/**
+ * Функция для обработки случая когда пользователя не существует или не был передан ID
+ * @param $connect
+ * @param $isAuth
+ * @param $title
+ * @return array|void
+ */
+function handleMissingUser($connect, $isAuth, $title)
+{
+    try {
+        $user_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+        return getUserInfo($connect, $user_id);
+    } catch (Exception $e) {
+        showNotFoundPage($isAuth, $title);
+        exit();
+    }
 }

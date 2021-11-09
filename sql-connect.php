@@ -46,37 +46,47 @@ function getContentTypes($connect)
  * @param $typeId - для сортировки по типу поста
  * @param $sortType - для сортировки по популярности, лайкам или дате
  * @param $sortDirection - для сортировки ASC, DESC
+ * @param $offset
  * @return array|void
  */
-function getListPosts($connect, $typeId, $sortType, $sortDirection)
+function getListPosts($connect, $typeId, $sortType, $sortDirection, $offset)
 {
     $order = "";
     switch ($sortType) {
         case 'popular':
-            $order = " posts.views_count $sortDirection";
+            $order = " posts.views_count $sortDirection ";
             break;
         case 'like':
-            $order = " count_post_likes $sortDirection";
+            $order = " count_post_likes $sortDirection ";
             break;
         case 'date':
-            $order = " posts.created_at $sortDirection";
+            $order = " posts.created_at $sortDirection ";
             break;
     }
+    $limit = "LIMIT " . QUANTITY_POPULAR_POSTS . " OFFSET $offset";
 
     $sqlPosts = "SELECT
-        posts.*,
+        posts.id,
+        posts.title,
         types.id AS 'type_id',
         types.title AS 'type_title',
+        posts.content,
+        posts.author_quote,
+        posts.image_url,
+        posts.video_url,
+        posts.website_url,
+        posts.created_at,
         users.id AS 'user_id',
         users.login AS 'user_login',
         users.avatar_url AS 'user_avatar_url',
+        posts.views_count,
         (SELECT COUNT(likes.user_id) FROM likes WHERE likes.post_id = posts.id) AS 'count_post_likes',
         (SELECT COUNT(comments.id) FROM comments WHERE comments.post_id=posts.id) AS 'count_post_comments'
 FROM posts
           INNER JOIN users ON posts.user_id = users.id
           INNER JOIN types ON posts.type_id = types.id
 WHERE $typeId > 0 AND types.id = $typeId OR $typeId = 0 AND types.id >= $typeId
-ORDER BY " . $order . " LIMIT " . QUANTITY_POPULAR_POSTS;
+ORDER BY " . $order . $limit;
 
     $resultPosts = mysqli_query($connect, $sqlPosts);
 
@@ -545,4 +555,300 @@ LIMIT " . QUANTITY_SEARCH_POSTS;
     $resultPosts = mysqli_stmt_get_result($stmt);
 
     return mysqli_fetch_all($resultPosts, MYSQLI_ASSOC);
+}
+
+function getUserInfo($connect, $userId)
+{
+    if (empty($userId)) {
+        throw new Exception('Не задан ID поста');
+    }
+
+    $sqlPosts = "SELECT
+        users.*,
+        (SELECT COUNT(posts.id) FROM posts WHERE posts.user_id = users.id) AS 'count_user_posts',
+        (SELECT COUNT(sub.subscribed_to_user_id) FROM subscriptions sub WHERE sub.subscriber_user_id = users.id) AS 'count_user_subscribers'
+FROM users WHERE users.id = ?";
+
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sqlPosts,
+        [$userId]
+    );
+    mysqli_stmt_execute($stmt);
+    $resultPosts = mysqli_stmt_get_result($stmt);
+
+    if ($user = mysqli_fetch_assoc($resultPosts)) {
+        return $user;
+    }
+    throw new Exception('Пост не найден');
+}
+
+function getUserPosts($connect, $userId)
+{
+    $sqlPosts = "SELECT
+        posts.*,
+        types.id AS 'type_id',
+        types.title AS 'type_title',
+        users.id AS 'user_id',
+        users.login AS 'user_login',
+        users.avatar_url AS 'user_avatar_url',
+        (SELECT COUNT(likes.user_id) FROM likes WHERE likes.post_id = posts.id) AS 'count_post_likes',
+        (SELECT COUNT(comments.id) FROM comments WHERE comments.post_id=posts.id) AS 'count_post_comments',
+        (SELECT COUNT(posts.original_post_id) FROM posts WHERE posts.original_post_id=posts.id) AS 'count_post_reposts'
+FROM posts
+          INNER JOIN users ON posts.user_id = users.id
+          INNER JOIN types ON posts.type_id = types.id
+WHERE users.id = ?
+ORDER BY posts.created_at DESC
+LIMIT " . QUANTITY_FEED_POSTS;
+
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sqlPosts,
+        [$userId]
+    );
+    mysqli_stmt_execute($stmt);
+    $resultPosts = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_all($resultPosts, MYSQLI_ASSOC);
+}
+
+function getUserLikes($connect, $userId)
+{
+    $query = mysqli_query($connect, "SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+    if (!$query) {
+        exit('Ошибка запроса: ' . mysqli_error($connect));
+    }
+    $sqlPosts = "SELECT posts.*,
+       likes.*,
+       types.title AS 'type_title',
+       types.icon_url AS 'type_icon'
+    FROM posts
+    INNER JOIN types ON posts.type_id = types.id
+    JOIN      (
+        SELECT    MAX(created_at) AS cr_like, user_id as who_like_id, post_id
+                  FROM      likes
+                  GROUP BY  post_id
+              ) likes ON (likes.post_id = posts.id)
+    WHERE posts.user_id = ?
+    ORDER BY cr_like DESC
+    LIMIT " . QUANTITY_FEED_POSTS;
+
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sqlPosts,
+        [$userId]
+    );
+    mysqli_stmt_execute($stmt);
+    $resultPosts = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_all($resultPosts, MYSQLI_ASSOC);
+}
+
+function getUserSubscriptions($connect, $userId)
+{
+    $sqlPosts = "SELECT subscriptions.*,
+        users.id AS 'user_id',
+        users.login AS 'user_login',
+        users.avatar_url AS 'user_avatar_url',
+        users.created_at AS 'user_created_at',
+        (SELECT COUNT(posts.id) FROM posts WHERE posts.user_id = users.id) AS 'count_user_posts',
+        (SELECT COUNT(sub.subscribed_to_user_id) FROM subscriptions sub WHERE sub.subscriber_user_id = users.id) AS 'count_user_subscribers'
+    FROM subscriptions
+    JOIN users ON subscriptions.subscribed_to_user_id = users.id
+    WHERE subscriber_user_id = ?
+    ORDER BY subscriptions.created_at DESC
+    LIMIT " . QUANTITY_FEED_POSTS;
+
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sqlPosts,
+        [$userId]
+    );
+    mysqli_stmt_execute($stmt);
+    $resultPosts = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_all($resultPosts, MYSQLI_ASSOC);
+}
+
+function getUserDataWhoLikePost($connect, $usersWhoLike)
+{
+    $data = implode(',', $usersWhoLike);
+
+
+    $sqlPosts = "SELECT
+        users.*
+FROM users WHERE users.id in ($data)";
+    $result = mysqli_query($connect, $sqlPosts);
+    if ($result) {
+        return mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+}
+
+function checkSubscription($connect, $followerId, $userId)
+{
+    $sql = "SELECT * FROM subscriptions WHERE subscribed_to_user_id = ? AND subscriber_user_id = ?";
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sql,
+        [$userId, $followerId]
+    );
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $is_subscription = [];
+
+    if ($result) {
+        $is_subscription = mysqli_fetch_assoc($result);
+    }
+
+    return $is_subscription;
+}
+
+/**
+ * Выполнение запросов на добавление/удаления лайка с поста
+ * @param mysqli $connect
+ * @param array $values массив значений айди поста и айди пользователя
+ * @return bool
+ */
+function changeLikes($connect, $values)
+{
+    $post = getPost($connect, $values['post_id']);
+
+    if (!empty($post)) {
+        $like = checkLike($connect, $values['user_id'], $values['post_id']);
+        $sql = !empty($like) ? "DELETE FROM likes WHERE user_id = ? AND post_id = ?" : "INSERT INTO likes SET user_id = ?, post_id = ?";
+
+        $stmt = dbGetPrepareStmt(
+            $connect,
+            $sql,
+            [$values['user_id'], $values['post_id']]
+        );
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_get_result($stmt);
+        return mysqli_stmt_errno($stmt) == 0;
+    }
+}
+
+/**
+ * Проверка лайка авторизованного пользователя на посте
+ * @param mysqli $connect
+ * @param int $user_id айди пользователя
+ * @param int $post_id айди поста
+ * @return array
+ */
+function checkLike($connect, $user_id, $post_id)
+{
+    $sql = "SELECT * FROM likes WHERE user_id = ? AND post_id = ?";
+    $stmt = dbGetPrepareStmt(
+        $connect,
+        $sql,
+        [$user_id, $post_id]
+    );
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return $result ? mysqli_fetch_assoc($result) : [];
+}
+
+/**
+ * Меняет подписку (добавляет или удаляет)
+ * @param mysqli $connect
+ * @param array $values значения с формы (айди пользователя на которого подписываются, действие, айди пользователя который подписывается)
+ * @return bool вовзращает true, если пользователь подписывается, и false если отписывается
+ */
+function changeSubscription($connect, $values)
+{
+    $sql_user = "SELECT id FROM users WHERE id = ?";
+    $stmt_user = dbGetPrepareStmt(
+        $connect,
+        $sql_user,
+        [$values['user_id']]
+    );
+    mysqli_stmt_execute($stmt_user);
+    $result_user = mysqli_stmt_get_result($stmt_user);
+    $user_info = mysqli_fetch_assoc($result_user);
+
+    if (!empty($user_info)) {
+        $sql_subscription = "";
+        switch ($values['action']) {
+            case 'remove':
+                $sql_subscription = "DELETE FROM subscriptions WHERE subscribed_to_user_id = ? AND subscriber_user_id = ?";
+                break;
+
+            case 'add':
+                $sql_subscription = "INSERT INTO subscriptions SET subscribed_to_user_id = ?, subscriber_user_id = ?";
+                break;
+        }
+
+        $stmt_subscription = dbGetPrepareStmt(
+            $connect,
+            $sql_subscription,
+            [$values['user_id'], $values['follower_id']]
+        );
+        mysqli_stmt_execute($stmt_subscription);
+        $result_subscription = mysqli_stmt_get_result($stmt_subscription);
+
+        if ($result_user && $result_subscription) {
+            mysqli_query($connect, "COMMIT");
+        } else {
+            mysqli_query($connect, "ROLLBACK");
+        }
+
+        return mysqli_stmt_errno($stmt_subscription) == 0;
+    }
+}
+
+/**
+ * Функция сохранения поста в БД
+ * @param $connect
+ * @param $message -- комментарий
+ * @param $user --пользовател, оставивший комментарий
+ * @param $post -- пост, под которым оставили комментарий
+ */
+function saveComment($connect, $message, $user, $post)
+{
+    $sql = "INSERT INTO comments SET content=?,user_id=?,post_id=?";
+
+    $stmt_comment = dbGetPrepareStmt(
+        $connect,
+        $sql,
+        [$message, $user, $post]
+    );
+    mysqli_stmt_execute($stmt_comment);
+}
+
+/**
+ * подсчитываем кол-во постов на стр популярное
+ * @param $connect
+ * @param $typeId
+ * @param $sortType
+ * @param $sortDirection
+ * @return int|string|void
+ */
+function getCountPosts($connect, $typeId, $sortType, $sortDirection)
+{
+    $order = "";
+    switch ($sortType) {
+        case 'popular':
+            $order = " posts.views_count $sortDirection ";
+            break;
+        case 'like':
+            $order = " count_post_likes $sortDirection ";
+            break;
+        case 'date':
+            $order = " posts.created_at $sortDirection ";
+            break;
+    }
+
+    $sqlPosts = "SELECT posts.id FROM posts
+          INNER JOIN types ON posts.type_id = types.id
+WHERE $typeId > 0 AND types.id = $typeId OR $typeId = 0 AND types.id >= $typeId";
+
+    $resultPosts = mysqli_query($connect, $sqlPosts);
+
+    if (!$resultPosts) {
+        exit('Ошибка запроса: ' . mysqli_error($connect));
+    }
+
+    return mysqli_affected_rows($connect);
 }

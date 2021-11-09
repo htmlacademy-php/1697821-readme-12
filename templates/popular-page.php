@@ -137,5 +137,21 @@
                 </article>
             <?php endforeach ?>
         </div>
+        <div class="popular__page-links">
+            <? if ($pageParams['page'] - 1 <= 0): ?>
+                <span class="popular__page-link popular__page-link--prev button--gray">Предыдущая страница</span>
+            <? else: ?>
+                <a class="popular__page-link popular__page-link--prev button button--gray"
+                   href="/popular.php?<?= getModPageQuery($pageParams, ["page" => $pageParams['page'] - 1],false,true); ?>">
+                    Предыдущая страница</a>
+            <? endif; ?>
+            <? if ($pageParams['page'] + 1 > ($countPosts / QUANTITY_POPULAR_POSTS)): ?>
+                <span class="popular__page-link popular__page-link--prev button--gray">Следующая страница</span>
+            <? else: ?>
+                <a class="popular__page-link popular__page-link--next button button--gray"
+                   href="/popular.php?<?= getModPageQuery($pageParams, ["page" => $pageParams['page'] + 1],false,true); ?>">
+                    Следующая страница</a>
+            <? endif; ?>
+        </div>
     </div>
 </section>

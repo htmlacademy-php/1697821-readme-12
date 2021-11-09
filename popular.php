@@ -13,7 +13,15 @@ if (empty($_SESSION)) {
 $connect = dbConnection();
 $typesList = getContentTypes($connect);
 $pageParams = popularParams();
-$postsList = getListPosts($connect, $pageParams["type_id"], $pageParams["sort_type"], $pageParams["sort_direction"]);
+$offset = ($pageParams['page'] - 1) * QUANTITY_POPULAR_POSTS;
+$countPosts = getCountPosts($connect, $pageParams["type_id"], $pageParams["sort_type"], $pageParams["sort_direction"]);
+$postsList = getListPosts(
+    $connect,
+    $pageParams["type_id"],
+    $pageParams["sort_type"],
+    $pageParams["sort_direction"],
+    $offset
+);
 
 $pageContent = includeTemplate(
     'popular-page.php',
@@ -21,7 +29,8 @@ $pageContent = includeTemplate(
         'types' => $typesList,
         'posts' => $postsList,
         'counter' => $counter,
-        'pageParams' => $pageParams
+        'pageParams' => $pageParams,
+        'countPosts' => $countPosts
     ]
 );
 

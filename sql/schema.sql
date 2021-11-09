@@ -100,3 +100,4 @@ CREATE TABLE `readme`.`post_hashtags`
     FOREIGN KEY (post_id) REFERENCES posts (id),
     FOREIGN KEY (hashtag_id) REFERENCES hashtags (id)
 );
+CREATE FULLTEXT INDEX post_search ON posts (title, content);
